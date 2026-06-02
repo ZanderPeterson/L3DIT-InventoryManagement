@@ -33,6 +33,13 @@ class Widget(QWidget):
         left_side.addWidget(title_label, alignment=Qt.AlignCenter)
         left_side.addStretch()
 
+        #Set up Search & Filtering
+        search_and_filters_layout = QVBoxLayout()
+        search_bar = QLabel("Search Bar [Placeholder]")
+        search_bar.setStyleSheet(basic_element + "min-height: 30px;")
+        right_side.addWidget(search_bar, alignment=Qt.AlignCenter)
+        right_side.addStretch()
+
         #Adds both of the sides to the overall layout
         main_columns.addLayout(left_side)
         main_columns.addLayout(right_side)
