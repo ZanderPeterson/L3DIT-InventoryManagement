@@ -5,7 +5,7 @@ import sys #Required for opening a window
 
 #Third-Party Libraries
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QApplication, QLabel, QHBoxLayout, QVBoxLayout, QWidget #The library utilised for the GUI
+from PySide6.QtWidgets import QApplication, QLabel, QPushButton, QHBoxLayout, QVBoxLayout, QWidget #The library utilised for the GUI
 
 #Local Libraries
 
@@ -37,7 +37,20 @@ class Widget(QWidget):
         search_and_filters_layout = QVBoxLayout()
         search_bar = QLabel("Search Bar [Placeholder]")
         search_bar.setStyleSheet(basic_element + "min-height: 30px;")
-        right_side.addWidget(search_bar, alignment=Qt.AlignCenter)
+        search_and_filters_layout.addWidget(search_bar, alignment=Qt.AlignCenter)
+        right_side.addLayout(search_and_filters_layout)
+
+        available_inventory_filter_layout = QHBoxLayout()
+        available_inventory_filter_label = QLabel("Sort By:")
+        available_inventory_filter_label.setStyleSheet(basic_element)
+        available_inventory_filter_layout.addWidget(available_inventory_filter_label)
+        available_inventory_button = QPushButton("Inventory Available")
+        available_inventory_button.setStyleSheet(basic_element)
+        available_inventory_filter_layout.addWidget(available_inventory_button)
+        unavailable_inventory_button = QPushButton("Inventory Unavailable")
+        unavailable_inventory_button.setStyleSheet(basic_element)
+        available_inventory_filter_layout.addWidget(unavailable_inventory_button)
+        right_side.addLayout(available_inventory_filter_layout)
         right_side.addStretch()
 
         #Adds both of the sides to the overall layout
