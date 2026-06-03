@@ -16,11 +16,48 @@ class Widget(QWidget):
         self.resize(800, 600)
 
         #QSS (Effectively CSS)
-        basic_element: str = """background-color: #cccccc; 
-                                color: black; 
-                                padding: 10px; 
-                                border: 2px solid black; 
-                                border-radius: 16px;"""
+        #Due to the use of f-strings, double curly brackets must be used where normally only one would be required.
+        basic_element: str = f"""
+            background-color: #cccccc; 
+            color: black; 
+            padding: 10px; 
+            border: 2px solid black; 
+            border-radius: 16px;
+        """
+        basic_button_hover: str = f"""
+            border-color: #5555cc;
+        """
+        basic_button_pressed: str = f"""
+            border-color: #5555cc;
+        """
+        inventory_available_button_style: str = f"""
+            QPushButton {{
+                {basic_element}
+                background-color: #aaffaa;
+            }}
+            QPushButton:hover {{
+                {basic_button_hover}
+                
+            }}
+            QPushButton:pressed {{
+                {basic_button_pressed}
+                background-color: #55ff55;
+            }}
+        """
+        inventory_unavailable_button_style: str = f"""
+            QPushButton {{
+                {basic_element}
+                background-color: #ffaaaa;
+            }}
+            QPushButton:hover {{
+                {basic_button_hover}
+
+            }}
+            QPushButton:pressed {{
+                {basic_button_pressed}
+                background-color: #ff5555;
+            }}
+        """
 
         #Layouts
         main_columns = QHBoxLayout()
@@ -45,10 +82,10 @@ class Widget(QWidget):
         available_inventory_filter_label.setStyleSheet(basic_element)
         available_inventory_filter_layout.addWidget(available_inventory_filter_label)
         available_inventory_button = QPushButton("Inventory Available")
-        available_inventory_button.setStyleSheet(basic_element)
+        available_inventory_button.setStyleSheet(inventory_available_button_style)
         available_inventory_filter_layout.addWidget(available_inventory_button)
         unavailable_inventory_button = QPushButton("Inventory Unavailable")
-        unavailable_inventory_button.setStyleSheet(basic_element)
+        unavailable_inventory_button.setStyleSheet(inventory_unavailable_button_style)
         available_inventory_filter_layout.addWidget(unavailable_inventory_button)
         right_side.addLayout(available_inventory_filter_layout)
         right_side.addStretch()
