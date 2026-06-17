@@ -52,7 +52,7 @@ class Widget(QWidget):
         self.unavailable_inventory_button.clicked.connect(lambda: self.available_inventory_filter(False))
         self.unavailable_inventory_button.setCheckable(True)
         available_inventory_filter_layout.addWidget(self.unavailable_inventory_button)
-
+        
         right_side.addLayout(available_inventory_filter_layout)
         right_side.addStretch()
 
@@ -65,14 +65,12 @@ class Widget(QWidget):
         print(f"current={self.show_available_inventory}, pressed={available_inventory_button_pressed}")
         if (self.show_available_inventory and (not available_inventory_button_pressed)):
             print(f"switching from available —> not available")
-            self.available_inventory_button.setChecked(False)
-            self.unavailable_inventory_button.setChecked(True)
             self.show_available_inventory = False
         elif ((not self.show_available_inventory) and available_inventory_button_pressed):
             print(f"switching from not available —> available")
-            self.available_inventory_button.setChecked(True)
-            self.unavailable_inventory_button.setChecked(False)
             self.show_available_inventory = True
+        self.available_inventory_button.setChecked(self.show_available_inventory)
+        self.unavailable_inventory_button.setChecked(not self.show_available_inventory)
 
 app = QApplication(sys.argv)
 print("running...")
