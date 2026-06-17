@@ -29,21 +29,30 @@ class Widget(QWidget):
 
         #Set up Search & Filtering
         search_and_filters_layout = QVBoxLayout()
-        search_bar = QLabel("Search Bar [Placeholder]")
+        search_bar = QLabel("Search Bar [Placeholder]") #A placeholder for now
         search_bar.setStyleSheet(qss.basic_element)
         search_and_filters_layout.addWidget(search_bar, alignment=Qt.AlignCenter)
         right_side.addLayout(search_and_filters_layout)
 
+        #Set up the inventory available/unavailable buttons
         available_inventory_filter_layout = QHBoxLayout()
         available_inventory_filter_label = QLabel("Sort By:")
         available_inventory_filter_label.setStyleSheet(qss.basic_element)
         available_inventory_filter_layout.addWidget(available_inventory_filter_label)
-        available_inventory_button = QPushButton("Inventory Available")
-        available_inventory_button.setStyleSheet(qss.inventory_available_button_style)
-        available_inventory_filter_layout.addWidget(available_inventory_button)
-        unavailable_inventory_button = QPushButton("Inventory Unavailable")
-        unavailable_inventory_button.setStyleSheet(qss.inventory_unavailable_button_style)
-        available_inventory_filter_layout.addWidget(unavailable_inventory_button)
+        self.show_available_inventory: bool = True #True = available inventory, False = unavailable inventory.
+
+        self.available_inventory_button = QPushButton("Inventory Available")
+        self.available_inventory_button.setStyleSheet(qss.inventory_available_button_style)
+        self.available_inventory_button.clicked.connect(lambda: self.available_inventory_filter(True))
+        self.available_inventory_button.setCheckable(True)
+        available_inventory_filter_layout.addWidget(self.available_inventory_button)
+
+        self.unavailable_inventory_button = QPushButton("Inventory Unavailable")
+        self.unavailable_inventory_button.setStyleSheet(qss.inventory_unavailable_button_style)
+        self.unavailable_inventory_button.clicked.connect(lambda: self.available_inventory_filter(False))
+        self.unavailable_inventory_button.setCheckable(True)
+        available_inventory_filter_layout.addWidget(self.unavailable_inventory_button)
+
         right_side.addLayout(available_inventory_filter_layout)
         right_side.addStretch()
 
@@ -51,6 +60,19 @@ class Widget(QWidget):
         main_columns.addLayout(left_side)
         main_columns.addLayout(right_side)
         self.setLayout(main_columns) #Displays layout
+
+    def available_inventory_filter(self, available_inventory_button_pressed: bool):
+        print(f"current={self.show_available_inventory}, pressed={available_inventory_button_pressed}")
+        if (self.show_available_inventory and (not available_inventory_button_pressed)):
+            print(f"switching from available —> not available")
+            self.available_inventory_button.setChecked(False)
+            self.unavailable_inventory_button.setChecked(True)
+            self.show_available_inventory = False
+        elif ((not self.show_available_inventory) and available_inventory_button_pressed):
+            print(f"switching from not available —> available")
+            self.available_inventory_button.setChecked(True)
+            self.unavailable_inventory_button.setChecked(False)
+            self.show_available_inventory = True
 
 app = QApplication(sys.argv)
 print("running...")

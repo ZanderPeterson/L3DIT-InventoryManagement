@@ -22,7 +22,7 @@ inventory_available_button_style: str = f"""
         {basic_button_hover}
 
     }}
-    QPushButton:pressed {{
+    QPushButton:checked {{
         {basic_button_pressed}
         background-color: #55ff55;
     }}
@@ -36,7 +36,7 @@ inventory_unavailable_button_style: str = f"""
         {basic_button_hover}
 
     }}
-    QPushButton:pressed {{
+    QPushButton:checked {{
         {basic_button_pressed}
         background-color: #ff5555;
     }}
