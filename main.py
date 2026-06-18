@@ -52,7 +52,8 @@ class Widget(QWidget):
         self.unavailable_inventory_button.clicked.connect(lambda: self.available_inventory_filter(False))
         self.unavailable_inventory_button.setCheckable(True)
         available_inventory_filter_layout.addWidget(self.unavailable_inventory_button)
-        
+
+        self.available_inventory_filter(True) #Set a default state for the available inventory buttons
         right_side.addLayout(available_inventory_filter_layout)
         right_side.addStretch()
 
