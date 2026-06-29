@@ -55,6 +55,27 @@ class Widget(QWidget):
 
         self.available_inventory_filter(True) #Set a default state for the available inventory buttons
         right_side.addLayout(available_inventory_filter_layout)
+
+        #Set up the issue filter buttons
+        issue_filter_layout = QHBoxLayout()
+        issue_filter_label = QLabel("Sort By:")
+        issue_filter_label.setStyleSheet(qss.basic_element)
+        issue_filter_layout.addWidget(issue_filter_label)
+
+        self.noissues_filter_button = QPushButton("No Issues")
+        self.noissues_filter_button.setStyleSheet(qss.noissues_button_style)
+        issue_filter_layout.addWidget(self.noissues_filter_button)
+
+        self.issues_filter_button = QPushButton("Issues")
+        self.issues_filter_button.setStyleSheet(qss.issues_button_style)
+        issue_filter_layout.addWidget(self.issues_filter_button)
+
+        self.all_filter_button = QPushButton("All")
+        self.all_filter_button.setStyleSheet(qss.all_button_style)
+        issue_filter_layout.addWidget(self.all_filter_button)
+
+        right_side.addLayout(issue_filter_layout)
+
         right_side.addStretch()
 
         #Adds both of the sides to the overall layout

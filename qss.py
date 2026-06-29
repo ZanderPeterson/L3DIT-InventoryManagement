@@ -41,3 +41,48 @@ inventory_unavailable_button_style: str = f"""
         background-color: #ff5555;
     }}
 """
+
+noissues_button_style: str = f"""
+    QPushButton {{
+        {basic_element}
+        background-color: #aaffaa;
+    }}
+    QPushButton:hover {{
+        {basic_button_hover}
+
+    }}
+    QPushButton:checked {{
+        {basic_button_pressed}
+        background-color: #55ff55;
+    }}
+"""
+
+issues_button_style: str = f"""
+    QPushButton {{
+        {basic_element}
+        background-color: #ffffaa;
+    }}
+    QPushButton:hover {{
+        {basic_button_hover}
+
+    }}
+    QPushButton:checked {{
+        {basic_button_pressed}
+        background-color: #55ff55;
+    }}
+"""
+
+all_button_style: str = f"""
+    QPushButton {{
+        {basic_element}
+        background-color: #ffaaaa;
+    }}
+    QPushButton:hover {{
+        {basic_button_hover}
+
+    }}
+    QPushButton:checked {{
+        {basic_button_pressed}
+        background-color: #ff5555;
+    }}
+"""
