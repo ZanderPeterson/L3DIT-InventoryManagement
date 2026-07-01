@@ -68,7 +68,7 @@ issues_button_style: str = f"""
     }}
     QPushButton:checked {{
         {basic_button_pressed}
-        background-color: #55ff55;
+        background-color: #ffff55;
     }}
 """
 
