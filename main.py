@@ -61,19 +61,27 @@ class Widget(QWidget):
         issue_filter_label = QLabel("Sort By:")
         issue_filter_label.setStyleSheet(qss.basic_element)
         issue_filter_layout.addWidget(issue_filter_label)
+        self.show_issues: int = 0 #noissues = 0, issues = 1, all = 2
 
         self.noissues_filter_button = QPushButton("No Issues")
         self.noissues_filter_button.setStyleSheet(qss.noissues_button_style)
+        self.noissues_filter_button.setCheckable(True)
+        self.noissues_filter_button.clicked.connect(lambda: self.issues_filter(0))
         issue_filter_layout.addWidget(self.noissues_filter_button)
 
         self.issues_filter_button = QPushButton("Issues")
         self.issues_filter_button.setStyleSheet(qss.issues_button_style)
+        self.issues_filter_button.setCheckable(True)
+        self.issues_filter_button.clicked.connect(lambda: self.issues_filter(1))
         issue_filter_layout.addWidget(self.issues_filter_button)
 
         self.all_filter_button = QPushButton("All")
         self.all_filter_button.setStyleSheet(qss.all_button_style)
+        self.all_filter_button.setCheckable(True)
+        self.all_filter_button.clicked.connect(lambda: self.issues_filter(2))
         issue_filter_layout.addWidget(self.all_filter_button)
 
+        self.issues_filter(self.show_issues) #Ensures one option is selected initially
         right_side.addLayout(issue_filter_layout)
 
         right_side.addStretch()
@@ -93,6 +101,13 @@ class Widget(QWidget):
             self.show_available_inventory = True
         self.available_inventory_button.setChecked(self.show_available_inventory)
         self.unavailable_inventory_button.setChecked(not self.show_available_inventory)
+
+    def issues_filter(self, issues_filter_pressed: int):
+        print("test")
+        self.show_issues = issues_filter_pressed
+        self.noissues_filter_button.setChecked(self.show_issues == 0)
+        self.issues_filter_button.setChecked(self.show_issues == 1)
+        self.all_filter_button.setChecked(self.show_issues == 2)
 
 app = QApplication(sys.argv)
 print("running...")
