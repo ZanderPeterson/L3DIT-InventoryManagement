@@ -5,7 +5,8 @@ import sys #Required for opening a window
 
 #Third-Party Libraries
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QApplication, QLabel, QPushButton, QHBoxLayout, QVBoxLayout, QWidget #The library utilised for the GUI
+from PySide6.QtWidgets import (QApplication, QLabel, QLineEdit, QPushButton,
+                               QHBoxLayout, QVBoxLayout, QWidget, QSizePolicy) #The library utilised for the GUI
 
 #Local Libraries
 import qss
@@ -28,11 +29,10 @@ class Widget(QWidget):
         left_side.addStretch()
 
         #Set up Search & Filtering
-        search_and_filters_layout = QVBoxLayout()
-        search_bar = QLabel("Search Bar [Placeholder]") #A placeholder for now
+        search_bar = QLineEdit()
+        search_bar.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
         search_bar.setStyleSheet(qss.basic_element)
-        search_and_filters_layout.addWidget(search_bar, alignment=Qt.AlignCenter)
-        right_side.addLayout(search_and_filters_layout)
+        right_side.addWidget(search_bar)
 
         #Set up the inventory available/unavailable buttons
         available_inventory_filter_layout = QHBoxLayout()
@@ -87,8 +87,8 @@ class Widget(QWidget):
         right_side.addStretch()
 
         #Adds both of the sides to the overall layout
-        main_columns.addLayout(left_side)
-        main_columns.addLayout(right_side)
+        main_columns.addLayout(left_side, stretch=1)
+        main_columns.addLayout(right_side, stretch=1)
         self.setLayout(main_columns) #Displays layout
 
     def available_inventory_filter(self, available_inventory_button_pressed: bool):
