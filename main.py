@@ -84,7 +84,10 @@ class Widget(QWidget):
         self.issues_filter(self.show_issues) #Ensures one option is selected initially
         right_side.addLayout(issue_filter_layout)
 
-        right_side.addStretch()
+        #Display List o' Items
+        self.itemlist = QLabel()
+        self.itemlist.setStyleSheet(qss.basic_element)
+        right_side.addWidget(self.itemlist, stretch=1)
 
         #Adds both of the sides to the overall layout
         main_columns.addLayout(left_side, stretch=1)
