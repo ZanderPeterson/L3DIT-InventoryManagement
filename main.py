@@ -38,20 +38,20 @@ class Widget(QWidget):
         available_inventory_filter_layout = QHBoxLayout()
         available_inventory_filter_label = QLabel("Sort By:")
         available_inventory_filter_label.setStyleSheet(qss.basic_element)
-        available_inventory_filter_layout.addWidget(available_inventory_filter_label)
+        available_inventory_filter_layout.addWidget(available_inventory_filter_label, stretch=2)
         self.show_available_inventory: bool = True #True = available inventory, False = unavailable inventory.
 
         self.available_inventory_button = QPushButton("Inventory Available")
         self.available_inventory_button.setStyleSheet(qss.inventory_available_button_style)
         self.available_inventory_button.clicked.connect(lambda: self.available_inventory_filter(True))
         self.available_inventory_button.setCheckable(True)
-        available_inventory_filter_layout.addWidget(self.available_inventory_button)
+        available_inventory_filter_layout.addWidget(self.available_inventory_button, stretch=3)
 
         self.unavailable_inventory_button = QPushButton("Inventory Unavailable")
         self.unavailable_inventory_button.setStyleSheet(qss.inventory_unavailable_button_style)
         self.unavailable_inventory_button.clicked.connect(lambda: self.available_inventory_filter(False))
         self.unavailable_inventory_button.setCheckable(True)
-        available_inventory_filter_layout.addWidget(self.unavailable_inventory_button)
+        available_inventory_filter_layout.addWidget(self.unavailable_inventory_button, stretch=3)
 
         self.available_inventory_filter(True) #Set a default state for the available inventory buttons
         right_side.addLayout(available_inventory_filter_layout)
@@ -60,26 +60,26 @@ class Widget(QWidget):
         issue_filter_layout = QHBoxLayout()
         issue_filter_label = QLabel("Sort By:")
         issue_filter_label.setStyleSheet(qss.basic_element)
-        issue_filter_layout.addWidget(issue_filter_label)
+        issue_filter_layout.addWidget(issue_filter_label, stretch=1)
         self.show_issues: int = 0 #noissues = 0, issues = 1, all = 2
 
         self.noissues_filter_button = QPushButton("No Issues")
         self.noissues_filter_button.setStyleSheet(qss.noissues_button_style)
         self.noissues_filter_button.setCheckable(True)
         self.noissues_filter_button.clicked.connect(lambda: self.issues_filter(0))
-        issue_filter_layout.addWidget(self.noissues_filter_button)
+        issue_filter_layout.addWidget(self.noissues_filter_button, stretch=1)
 
         self.issues_filter_button = QPushButton("Issues")
         self.issues_filter_button.setStyleSheet(qss.issues_button_style)
         self.issues_filter_button.setCheckable(True)
         self.issues_filter_button.clicked.connect(lambda: self.issues_filter(1))
-        issue_filter_layout.addWidget(self.issues_filter_button)
+        issue_filter_layout.addWidget(self.issues_filter_button, stretch=1)
 
         self.all_filter_button = QPushButton("All")
         self.all_filter_button.setStyleSheet(qss.all_button_style)
         self.all_filter_button.setCheckable(True)
         self.all_filter_button.clicked.connect(lambda: self.issues_filter(2))
-        issue_filter_layout.addWidget(self.all_filter_button)
+        issue_filter_layout.addWidget(self.all_filter_button, stretch=1)
 
         self.issues_filter(self.show_issues) #Ensures one option is selected initially
         right_side.addLayout(issue_filter_layout)
