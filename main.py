@@ -53,7 +53,6 @@ class Widget(QWidget):
         self.unavailable_inventory_button.setCheckable(True)
         available_inventory_filter_layout.addWidget(self.unavailable_inventory_button, stretch=3)
 
-        self.available_inventory_filter(True) #Set a default state for the available inventory buttons
         right_side.addLayout(available_inventory_filter_layout)
 
         #Set up the issue filter buttons
@@ -81,17 +80,21 @@ class Widget(QWidget):
         self.all_filter_button.clicked.connect(lambda: self.issues_filter(2))
         issue_filter_layout.addWidget(self.all_filter_button, stretch=1)
 
-        self.issues_filter(self.show_issues) #Ensures one option is selected initially
         right_side.addLayout(issue_filter_layout)
 
         #Display List o' Items
         self.itemlist = QLabel()
-        self.itemlist.setStyleSheet(qss.basic_element)
+        self.itemlist.setStyleSheet(qss.item_list_available)
         right_side.addWidget(self.itemlist, stretch=1)
 
         #Adds both of the sides to the overall layout
         main_columns.addLayout(left_side, stretch=1)
         main_columns.addLayout(right_side, stretch=1)
+
+        #Sets the default states of buttons
+        self.available_inventory_filter(self.show_available_inventory)
+        self.issues_filter(self.show_issues)  # Ensures one option is selected initially
+
         self.setLayout(main_columns) #Displays layout
 
     def available_inventory_filter(self, available_inventory_button_pressed: bool):
@@ -104,6 +107,11 @@ class Widget(QWidget):
             self.show_available_inventory = True
         self.available_inventory_button.setChecked(self.show_available_inventory)
         self.unavailable_inventory_button.setChecked(not self.show_available_inventory)
+
+        if self.show_available_inventory:
+            self.itemlist.setStyleSheet(qss.item_list_available)
+        else:
+            self.itemlist.setStyleSheet(qss.item_list_unavailable)
 
     def issues_filter(self, issues_filter_pressed: int):
         print("test")

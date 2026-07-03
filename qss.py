@@ -86,3 +86,13 @@ all_button_style: str = f"""
         background-color: #ff5555;
     }}
 """
+
+item_list_available: str = f"""
+    {basic_element}
+    background-color: #55ff55;
+"""
+
+item_list_unavailable: str = f"""
+    {basic_element}
+    background-color: #ff5555;
+"""
