@@ -11,7 +11,7 @@ from PySide6.QtWidgets import (QApplication, QLabel, QLineEdit, QPushButton,
 #Local Libraries
 import qss
 
-class Widget(QWidget):
+class MainWidget(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Havelock North Scout Hall — Inventory Management") #Sets the title of the window
@@ -83,9 +83,17 @@ class Widget(QWidget):
         right_side.addLayout(issue_filter_layout)
 
         #Display List o' Items
-        self.itemlist = QLabel()
-        self.itemlist.setStyleSheet(qss.item_list_available)
-        right_side.addWidget(self.itemlist, stretch=1)
+        self.itemlistwidget = QWidget()
+        self.itemlistwidget.setStyleSheet(qss.item_list_available)
+        self.itemlistlayout = QVBoxLayout()
+        self.itemlistwidget.setLayout(self.itemlistlayout)
+
+        self.testlabel = QLabel("Test")
+        self.testlabel.setStyleSheet(qss.basic_element)
+        self.itemlistlayout.addWidget(self.testlabel)
+        self.itemlistlayout.addStretch()
+
+        right_side.addWidget(self.itemlistwidget)
 
         #Adds both of the sides to the overall layout
         main_columns.addLayout(left_side, stretch=1)
@@ -109,9 +117,11 @@ class Widget(QWidget):
         self.unavailable_inventory_button.setChecked(not self.show_available_inventory)
 
         if self.show_available_inventory:
-            self.itemlist.setStyleSheet(qss.item_list_available)
+            self.itemlistwidget.setStyleSheet(qss.item_list_available)
+            self.testlabel.show()
         else:
-            self.itemlist.setStyleSheet(qss.item_list_unavailable)
+            self.itemlistwidget.setStyleSheet(qss.item_list_unavailable)
+            self.testlabel.hide()
 
     def issues_filter(self, issues_filter_pressed: int):
         print("test")
@@ -123,7 +133,7 @@ class Widget(QWidget):
 app = QApplication(sys.argv)
 print("running...")
 
-widget = Widget()
+widget = MainWidget()
 widget.show()
 
 app.exec()
