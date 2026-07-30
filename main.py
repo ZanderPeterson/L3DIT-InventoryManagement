@@ -115,7 +115,8 @@ class MainWidget(QWidget):
         for item_uuid in data_utils.get_items(self.show_available_inventory):
             self.rendered_items[item_uuid] = QLabel(data_utils.get_item_information(item_uuid)["name"])
             self.rendered_items[item_uuid].setStyleSheet(qss.basic_element)
-            self.itemlistlayout.addWidget(self.rendered_items[item_uuid])
+            insert_widget_location = max(0, self.itemlistlayout.count()-1) #Ensures widget is before stretch
+            self.itemlistlayout.insertWidget(insert_widget_location, self.rendered_items[item_uuid])
 
     def available_inventory_filter(self, available_inventory_button_pressed: bool):
         print(f"current={self.show_available_inventory}, pressed={available_inventory_button_pressed}")
