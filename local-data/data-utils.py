@@ -27,6 +27,26 @@ def add_uuids_to_items():
     with open(item_csv, mode="w", newline="") as csv_file:
         csv.writer(csv_file).writerows(read_file) #Writes file w/changes.
 
+def get_items(available_filter: bool|None = None) -> list[str]:
+    """
+    A function that returns the UUIDs of all the items that meet the filters,
+    which are given as arguments to the function.
+    If set to "None", then the filter is disregarded.
+    e.g.
+    """
+    list_of_UUIDs: list[str] = []
+    with open(item_csv, mode="r", newline="") as csv_file:
+        read_file = list(csv.reader(csv_file))
+        read_file.pop(0)
+        for item in read_file:
+            meets_availability_filter: bool|None = None
+            if not available_filter is None:
+                meets_availability_filter: bool|None = ((available_filter == True and item[1] == "Available") or
+                                                        (available_filter == False and item[1] == "Unavailable"))
+            if not meets_availability_filter == False:
+                list_of_UUIDs.append(item[0])
+    return list_of_UUIDs
+
 def get_item_information(uuid:str) -> dict[str, str]:
     """
     A function that returns the basic information of an item, given the UUID.
@@ -47,3 +67,4 @@ if __name__ == "__main__":
     print("main.py is the intended file for this code to be ran from.")
     add_uuids_to_items()
     print(get_item_information("4e3d4cfc-1e45-42c3-8052-c3b356f12153"))
+    print(get_items(True))
