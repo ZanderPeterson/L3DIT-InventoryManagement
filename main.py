@@ -123,8 +123,12 @@ class MainWidget(QWidget):
             self.rendered_items[item_uuid]["Label"].setStyleSheet(qss.item_label)
             self.rendered_items[item_uuid]["Layout"].addWidget(self.rendered_items[item_uuid]["Label"])
 
-            self.rendered_items[item_uuid]["Button"] = QPushButton("Check Out")
-            self.rendered_items[item_uuid]["Button"].setStyleSheet(qss.item_checkout_button)
+            if self.show_available_inventory:
+                self.rendered_items[item_uuid]["Button"] = QPushButton("Check Out")
+                self.rendered_items[item_uuid]["Button"].setStyleSheet(qss.item_checkout_button)
+            else:
+                self.rendered_items[item_uuid]["Button"] = QPushButton("Check In")
+                self.rendered_items[item_uuid]["Button"].setStyleSheet(qss.item_checkin_button)
             self.rendered_items[item_uuid]["Layout"].addWidget(self.rendered_items[item_uuid]["Button"])
 
             self.rendered_items[item_uuid]["QWidget"].setLayout(self.rendered_items[item_uuid]["Layout"])

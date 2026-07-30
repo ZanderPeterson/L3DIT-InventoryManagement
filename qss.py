@@ -129,3 +129,20 @@ item_checkout_button: str = f"""
         background-color: #ffff55;
     }}
 """
+
+item_checkin_button: str = f"""
+    QPushButton {{
+        {basic_element}
+        margin: 0px;
+        background-color: #aaaaff;
+    }}
+    QPushButton:hover {{
+        {basic_button_hover}
+        margin: 0px;
+    }}
+    QPushButton:checked {{
+        {basic_button_pressed}
+        margin: 0px;
+        background-color: #5555ff;
+    }}
+"""
