@@ -1,5 +1,10 @@
 # QSS (Effectively CSS)
 # Due to the use of f-strings, double curly brackets must be used where normally only one would be required.
+no_qss: str = f"""
+    border: none; 
+    padding: 0px; 
+    margin: 0px;
+"""
 basic_element: str = f"""
     background-color: #cccccc; 
     color: black; 

@@ -89,7 +89,7 @@ class MainWidget(QWidget):
         self.itemlistwidget.setStyleSheet(qss.item_list_available)
         self.itemlistlayout = QVBoxLayout()
         self.itemlistwidget.setLayout(self.itemlistlayout)
-        self.rendered_items: dict[str, QWidget] = {}
+        self.rendered_items: dict[str, dict[QWidget]] = {}
         self.itemlistlayout.addStretch()
 
         right_side.addWidget(self.itemlistwidget)
@@ -109,14 +109,22 @@ class MainWidget(QWidget):
         Renders all items in item screen.
         """
         for item in self.rendered_items.values():
-            item.deleteLater()
+            item["QWidget"].deleteLater()
         self.rendered_items = {}
 
         for item_uuid in data_utils.get_items(self.show_available_inventory):
-            self.rendered_items[item_uuid] = QLabel(data_utils.get_item_information(item_uuid)["name"])
-            self.rendered_items[item_uuid].setStyleSheet(qss.basic_element)
+            self.rendered_items[item_uuid] = {}
+            self.rendered_items[item_uuid]["QWidget"] = QWidget()
+            self.rendered_items[item_uuid]["QWidget"].setStyleSheet(qss.basic_element)
+            self.rendered_items[item_uuid]["Layout"] = QHBoxLayout()
+
+            self.rendered_items[item_uuid]["Label"] = QLabel(data_utils.get_item_information(item_uuid)["name"])
+            self.rendered_items[item_uuid]["Label"].setStyleSheet(qss.no_qss)
+            self.rendered_items[item_uuid]["Layout"].addWidget(self.rendered_items[item_uuid]["Label"])
+
+            self.rendered_items[item_uuid]["QWidget"].setLayout(self.rendered_items[item_uuid]["Layout"])
             insert_widget_location = max(0, self.itemlistlayout.count()-1) #Ensures widget is before stretch
-            self.itemlistlayout.insertWidget(insert_widget_location, self.rendered_items[item_uuid])
+            self.itemlistlayout.insertWidget(insert_widget_location, self.rendered_items[item_uuid]["QWidget"])
 
     def available_inventory_filter(self, available_inventory_button_pressed: bool):
         print(f"current={self.show_available_inventory}, pressed={available_inventory_button_pressed}")
