@@ -101,3 +101,31 @@ item_list_unavailable: str = f"""
     {basic_element}
     background-color: #ff5555;
 """
+
+item_in_list: str = f"""
+    {basic_element}
+    padding: 0px;
+"""
+
+item_label: str = f"""
+    {no_qss}
+    padding: 10px;
+    border: 4px solid rgba(0, 0, 0, 0);
+"""
+
+item_checkout_button: str = f"""
+    QPushButton {{
+        {basic_element}
+        margin: 0px;
+        background-color: #ffffaa;
+    }}
+    QPushButton:hover {{
+        {basic_button_hover}
+        margin: 0px;
+    }}
+    QPushButton:checked {{
+        {basic_button_pressed}
+        margin: 0px;
+        background-color: #ffff55;
+    }}
+"""

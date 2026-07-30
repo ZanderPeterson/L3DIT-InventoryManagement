@@ -115,12 +115,17 @@ class MainWidget(QWidget):
         for item_uuid in data_utils.get_items(self.show_available_inventory):
             self.rendered_items[item_uuid] = {}
             self.rendered_items[item_uuid]["QWidget"] = QWidget()
-            self.rendered_items[item_uuid]["QWidget"].setStyleSheet(qss.basic_element)
+            self.rendered_items[item_uuid]["QWidget"].setStyleSheet(qss.item_in_list)
             self.rendered_items[item_uuid]["Layout"] = QHBoxLayout()
+            self.rendered_items[item_uuid]["Layout"].setContentsMargins(10, 0, 0, 0)
 
             self.rendered_items[item_uuid]["Label"] = QLabel(data_utils.get_item_information(item_uuid)["name"])
-            self.rendered_items[item_uuid]["Label"].setStyleSheet(qss.no_qss)
+            self.rendered_items[item_uuid]["Label"].setStyleSheet(qss.item_label)
             self.rendered_items[item_uuid]["Layout"].addWidget(self.rendered_items[item_uuid]["Label"])
+
+            self.rendered_items[item_uuid]["Button"] = QPushButton("Check Out")
+            self.rendered_items[item_uuid]["Button"].setStyleSheet(qss.item_checkout_button)
+            self.rendered_items[item_uuid]["Layout"].addWidget(self.rendered_items[item_uuid]["Button"])
 
             self.rendered_items[item_uuid]["QWidget"].setLayout(self.rendered_items[item_uuid]["Layout"])
             insert_widget_location = max(0, self.itemlistlayout.count()-1) #Ensures widget is before stretch
