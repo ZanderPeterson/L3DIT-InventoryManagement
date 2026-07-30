@@ -9,7 +9,7 @@ import uuid
 #Local Libraries
 
 #File Names
-item_csv: str = "items.csv"
+item_csv: str = "local_data/items.csv"
 
 def add_uuids_to_items():
     """

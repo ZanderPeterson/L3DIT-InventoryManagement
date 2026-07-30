@@ -10,12 +10,14 @@ from PySide6.QtWidgets import (QApplication, QLabel, QLineEdit, QPushButton,
 
 #Local Libraries
 import qss
+from local_data import data_utils
 
 class MainWidget(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Havelock North Scout Hall — Inventory Management") #Sets the title of the window
         self.resize(800, 600)
+        data_utils.add_uuids_to_items() #If any new items are added, adds UUIDs to them
 
         #Layouts
         main_columns = QHBoxLayout()
@@ -87,10 +89,7 @@ class MainWidget(QWidget):
         self.itemlistwidget.setStyleSheet(qss.item_list_available)
         self.itemlistlayout = QVBoxLayout()
         self.itemlistwidget.setLayout(self.itemlistlayout)
-
-        self.testlabel = QLabel("Test")
-        self.testlabel.setStyleSheet(qss.basic_element)
-        self.itemlistlayout.addWidget(self.testlabel)
+        self.rendered_items: dict[str, QWidget] = {}
         self.itemlistlayout.addStretch()
 
         right_side.addWidget(self.itemlistwidget)
@@ -105,6 +104,19 @@ class MainWidget(QWidget):
 
         self.setLayout(main_columns) #Displays layout
 
+    def render_item_list(self):
+        """
+        Renders all items in item screen.
+        """
+        for item in self.rendered_items.values():
+            item.deleteLater()
+        self.rendered_items = {}
+
+        for item_uuid in data_utils.get_items(self.show_available_inventory):
+            self.rendered_items[item_uuid] = QLabel(data_utils.get_item_information(item_uuid)["name"])
+            self.rendered_items[item_uuid].setStyleSheet(qss.basic_element)
+            self.itemlistlayout.addWidget(self.rendered_items[item_uuid])
+
     def available_inventory_filter(self, available_inventory_button_pressed: bool):
         print(f"current={self.show_available_inventory}, pressed={available_inventory_button_pressed}")
         if (self.show_available_inventory and (not available_inventory_button_pressed)):
@@ -118,10 +130,9 @@ class MainWidget(QWidget):
 
         if self.show_available_inventory:
             self.itemlistwidget.setStyleSheet(qss.item_list_available)
-            self.testlabel.show()
         else:
             self.itemlistwidget.setStyleSheet(qss.item_list_unavailable)
-            self.testlabel.hide()
+        self.render_item_list()
 
     def issues_filter(self, issues_filter_pressed: int):
         print("test")
