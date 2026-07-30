@@ -9,7 +9,7 @@ import uuid
 #Local Libraries
 
 #File Names
-item_csv: str = "local_data/items.csv"
+item_csv: str = "items.csv"
 
 def add_uuids_to_items():
     """
@@ -62,9 +62,33 @@ def get_item_information(uuid:str) -> dict[str, str]:
                 item_info["description"] = item[3]
     return item_info
 
+def modify_item_information(uuid:str, modifications: dict[str, str]):
+    with open(item_csv, mode="r", newline="") as csv_file:
+        read_file = list(csv.reader(csv_file))
+        for row in read_file:
+            if row[0] == uuid:
+                try:
+                    row[1] = modifications["availability"]
+                except KeyError:
+                    pass
+
+                try:
+                    row[2] = modifications["name"]
+                except KeyError:
+                    pass
+
+                try:
+                    row[3] = modifications["description"]
+                except KeyError:
+                    pass
+
+    with open(item_csv, mode="w", newline="") as csv_file:
+        csv.writer(csv_file).writerows(read_file)
+
 if __name__ == "__main__":
     print("Warning: File is intended to be used for utilities rather than run directly.")
     print("main.py is the intended file for this code to be ran from.")
     add_uuids_to_items()
     print(get_item_information("4e3d4cfc-1e45-42c3-8052-c3b356f12153"))
     print(get_items(True))
+    modify_item_information("c08e9b7e-fd60-417d-a7fe-d80346bd8614", {"availability": "Available"})
