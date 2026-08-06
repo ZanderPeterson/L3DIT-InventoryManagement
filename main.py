@@ -126,15 +126,13 @@ class MainWidget(QWidget):
             if self.show_available_inventory:
                 self.rendered_items[item_uuid]["Button"] = QPushButton("Check Out")
                 self.rendered_items[item_uuid]["Button"].setStyleSheet(qss.item_checkout_button)
-                self.rendered_items[item_uuid]["Button"].clicked.connect(lambda: self.check_out(item_uuid))
+                self.rendered_items[item_uuid]["Button"].clicked.connect(lambda _, uuid=item_uuid: self.check_out(uuid))
             else:
                 self.rendered_items[item_uuid]["Button"] = QPushButton("Check In")
                 self.rendered_items[item_uuid]["Button"].setStyleSheet(qss.item_checkin_button)
-                self.rendered_items[item_uuid]["Button"].clicked.connect(lambda: self.check_in(item_uuid))
-                print(f"rendering {item_uuid}")
-                print(lambda: self.check_in(item_uuid))
+                self.rendered_items[item_uuid]["Button"].clicked.connect(lambda _, uuid=item_uuid: self.check_in(uuid))
             self.rendered_items[item_uuid]["Layout"].addWidget(self.rendered_items[item_uuid]["Button"])
-
+            #print(self.rendered_items)
             self.rendered_items[item_uuid]["QWidget"].setLayout(self.rendered_items[item_uuid]["Layout"])
             insert_widget_location = max(0, self.itemlistlayout.count()-1) #Ensures widget is before stretch
             self.itemlistlayout.insertWidget(insert_widget_location, self.rendered_items[item_uuid]["QWidget"])
@@ -165,7 +163,6 @@ class MainWidget(QWidget):
 
     def check_in(self, uuid:str):
         data_utils.modify_item_information(uuid, {"availability": "Available"})
-        print(f"checking-in {uuid}")
         self.render_item_list()
 
     def check_out(self, uuid:str):
