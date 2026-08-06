@@ -132,18 +132,14 @@ class MainWidget(QWidget):
                 self.rendered_items[item_uuid]["Button"].setStyleSheet(qss.item_checkin_button)
                 self.rendered_items[item_uuid]["Button"].clicked.connect(lambda _, uuid=item_uuid: self.check_in(uuid))
             self.rendered_items[item_uuid]["Layout"].addWidget(self.rendered_items[item_uuid]["Button"])
-            #print(self.rendered_items)
             self.rendered_items[item_uuid]["QWidget"].setLayout(self.rendered_items[item_uuid]["Layout"])
             insert_widget_location = max(0, self.itemlistlayout.count()-1) #Ensures widget is before stretch
             self.itemlistlayout.insertWidget(insert_widget_location, self.rendered_items[item_uuid]["QWidget"])
 
     def available_inventory_filter(self, available_inventory_button_pressed: bool):
-        print(f"current={self.show_available_inventory}, pressed={available_inventory_button_pressed}")
         if (self.show_available_inventory and (not available_inventory_button_pressed)):
-            print(f"switching from available —> not available")
             self.show_available_inventory = False
         elif ((not self.show_available_inventory) and available_inventory_button_pressed):
-            print(f"switching from not available —> available")
             self.show_available_inventory = True
         self.available_inventory_button.setChecked(self.show_available_inventory)
         self.unavailable_inventory_button.setChecked(not self.show_available_inventory)
@@ -155,7 +151,6 @@ class MainWidget(QWidget):
         self.render_item_list()
 
     def issues_filter(self, issues_filter_pressed: int):
-        print("test")
         self.show_issues = issues_filter_pressed
         self.noissues_filter_button.setChecked(self.show_issues == 0)
         self.issues_filter_button.setChecked(self.show_issues == 1)
