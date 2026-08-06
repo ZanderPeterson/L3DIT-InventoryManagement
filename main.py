@@ -10,12 +10,14 @@ from PySide6.QtWidgets import (QApplication, QLabel, QLineEdit, QPushButton,
 
 #Local Libraries
 import qss
+from local_data import data_utils
 
-class Widget(QWidget):
+class MainWidget(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Havelock North Scout Hall — Inventory Management") #Sets the title of the window
         self.resize(800, 600)
+        data_utils.add_uuids_to_items() #If any new items are added, adds UUIDs to them
 
         #Layouts
         main_columns = QHBoxLayout()
@@ -53,7 +55,6 @@ class Widget(QWidget):
         self.unavailable_inventory_button.setCheckable(True)
         available_inventory_filter_layout.addWidget(self.unavailable_inventory_button, stretch=3)
 
-        self.available_inventory_filter(True) #Set a default state for the available inventory buttons
         right_side.addLayout(available_inventory_filter_layout)
 
         #Set up the issue filter buttons
@@ -81,38 +82,92 @@ class Widget(QWidget):
         self.all_filter_button.clicked.connect(lambda: self.issues_filter(2))
         issue_filter_layout.addWidget(self.all_filter_button, stretch=1)
 
-        self.issues_filter(self.show_issues) #Ensures one option is selected initially
         right_side.addLayout(issue_filter_layout)
 
-        right_side.addStretch()
+        #Display List o' Items
+        self.itemlistwidget = QWidget()
+        self.itemlistwidget.setStyleSheet(qss.item_list_available)
+        self.itemlistlayout = QVBoxLayout()
+        self.itemlistwidget.setLayout(self.itemlistlayout)
+        self.rendered_items: dict[str, dict[QWidget]] = {}
+        self.itemlistlayout.addStretch()
+
+        right_side.addWidget(self.itemlistwidget)
 
         #Adds both of the sides to the overall layout
         main_columns.addLayout(left_side, stretch=1)
         main_columns.addLayout(right_side, stretch=1)
+
+        #Sets the default states of buttons
+        self.available_inventory_filter(self.show_available_inventory)
+        self.issues_filter(self.show_issues)  # Ensures one option is selected initially
+
         self.setLayout(main_columns) #Displays layout
 
+    def render_item_list(self):
+        """
+        Renders all items in item screen.
+        """
+        for item in self.rendered_items.values():
+            item["QWidget"].deleteLater()
+        self.rendered_items = {}
+
+        for item_uuid in data_utils.get_items(self.show_available_inventory):
+            self.rendered_items[item_uuid] = {}
+            self.rendered_items[item_uuid]["QWidget"] = QWidget()
+            self.rendered_items[item_uuid]["QWidget"].setStyleSheet(qss.item_in_list)
+            self.rendered_items[item_uuid]["Layout"] = QHBoxLayout()
+            self.rendered_items[item_uuid]["Layout"].setContentsMargins(10, 0, 0, 0)
+
+            self.rendered_items[item_uuid]["Label"] = QLabel(data_utils.get_item_information(item_uuid)["name"])
+            self.rendered_items[item_uuid]["Label"].setStyleSheet(qss.item_label)
+            self.rendered_items[item_uuid]["Layout"].addWidget(self.rendered_items[item_uuid]["Label"])
+
+            if self.show_available_inventory:
+                self.rendered_items[item_uuid]["Button"] = QPushButton("Check Out")
+                self.rendered_items[item_uuid]["Button"].setStyleSheet(qss.item_checkout_button)
+                self.rendered_items[item_uuid]["Button"].clicked.connect(lambda _, uuid=item_uuid: self.check_out(uuid))
+            else:
+                self.rendered_items[item_uuid]["Button"] = QPushButton("Check In")
+                self.rendered_items[item_uuid]["Button"].setStyleSheet(qss.item_checkin_button)
+                self.rendered_items[item_uuid]["Button"].clicked.connect(lambda _, uuid=item_uuid: self.check_in(uuid))
+            self.rendered_items[item_uuid]["Layout"].addWidget(self.rendered_items[item_uuid]["Button"])
+            self.rendered_items[item_uuid]["QWidget"].setLayout(self.rendered_items[item_uuid]["Layout"])
+            insert_widget_location = max(0, self.itemlistlayout.count()-1) #Ensures widget is before stretch
+            self.itemlistlayout.insertWidget(insert_widget_location, self.rendered_items[item_uuid]["QWidget"])
+
     def available_inventory_filter(self, available_inventory_button_pressed: bool):
-        print(f"current={self.show_available_inventory}, pressed={available_inventory_button_pressed}")
         if (self.show_available_inventory and (not available_inventory_button_pressed)):
-            print(f"switching from available —> not available")
             self.show_available_inventory = False
         elif ((not self.show_available_inventory) and available_inventory_button_pressed):
-            print(f"switching from not available —> available")
             self.show_available_inventory = True
         self.available_inventory_button.setChecked(self.show_available_inventory)
         self.unavailable_inventory_button.setChecked(not self.show_available_inventory)
 
+        if self.show_available_inventory:
+            self.itemlistwidget.setStyleSheet(qss.item_list_available)
+        else:
+            self.itemlistwidget.setStyleSheet(qss.item_list_unavailable)
+        self.render_item_list()
+
     def issues_filter(self, issues_filter_pressed: int):
-        print("test")
         self.show_issues = issues_filter_pressed
         self.noissues_filter_button.setChecked(self.show_issues == 0)
         self.issues_filter_button.setChecked(self.show_issues == 1)
         self.all_filter_button.setChecked(self.show_issues == 2)
 
+    def check_in(self, uuid:str):
+        data_utils.modify_item_information(uuid, {"availability": "Available"})
+        self.render_item_list()
+
+    def check_out(self, uuid:str):
+        data_utils.modify_item_information(uuid, {"availability": "Unavailable"})
+        self.render_item_list()
+
 app = QApplication(sys.argv)
 print("running...")
 
-widget = Widget()
+widget = MainWidget()
 widget.show()
 
 app.exec()
