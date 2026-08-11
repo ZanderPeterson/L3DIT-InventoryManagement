@@ -28,7 +28,6 @@ class MainWidget(QWidget):
         title_label = QLabel("<h1>Inventory Management</h1>") #Creates a heading for the output section
         title_label.setStyleSheet(qss.basic_element)
         left_side.addWidget(title_label, alignment=Qt.AlignCenter)
-        left_side.addStretch()
 
         #Set up Search & Filtering
         search_bar = QLineEdit()
@@ -93,6 +92,14 @@ class MainWidget(QWidget):
         self.itemlistlayout.addStretch()
 
         right_side.addWidget(self.itemlistwidget)
+
+        #Display the Info Panel
+        self.infopanelwidget = QWidget()
+        self.infopanelwidget.setStyleSheet(qss.basic_element)
+        self.infopanellayout = QVBoxLayout()
+        self.infopanelwidget.setLayout(self.infopanellayout)
+        self.infopanellayout.addStretch()
+        left_side.addWidget(self.infopanelwidget)
 
         #Adds both of the sides to the overall layout
         main_columns.addLayout(left_side, stretch=1)
