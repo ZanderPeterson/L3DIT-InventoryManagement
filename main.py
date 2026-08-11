@@ -33,6 +33,7 @@ class MainWidget(QWidget):
         self.search_bar = QLineEdit()
         self.search_bar.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
         self.search_bar.setStyleSheet(qss.basic_element)
+        self.search_bar.textChanged.connect(lambda _: self.render_item_list())
         right_side.addWidget(self.search_bar)
 
         #Set up the inventory available/unavailable buttons
