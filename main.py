@@ -185,6 +185,17 @@ class MainWidget(QWidget):
         self.info_panel_info["description"].setStyleSheet(qss.no_qss)
         self.infopanellayout.insertWidget(1, self.info_panel_info["description"])
 
+        if item_info["is_available"] == "Available":
+            self.info_panel_info["Button"] = QPushButton("Check Out")
+            self.info_panel_info["Button"].setStyleSheet(qss.item_checkout_button)
+            self.info_panel_info["Button"].clicked.connect(lambda _: self.check_out(uuid))
+        else:
+            self.info_panel_info["Button"] = QPushButton("Check In")
+            self.info_panel_info["Button"].setStyleSheet(qss.item_checkin_button)
+            self.info_panel_info["Button"].clicked.connect(lambda _: self.check_in(uuid))
+        self.infopanellayout.addWidget(self.info_panel_info["Button"])
+
+
 app = QApplication(sys.argv)
 print("running...")
 

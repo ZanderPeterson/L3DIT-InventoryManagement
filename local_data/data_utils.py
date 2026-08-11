@@ -58,6 +58,7 @@ def get_item_information(uuid:str) -> dict[str, str]:
         read_file = list(csv.reader(csv_file))
         for item in read_file:
             if item[0] == uuid:
+                item_info["is_available"] = item[1]
                 item_info["name"] = item[2]
                 item_info["description"] = item[3]
     return item_info
