@@ -111,6 +111,7 @@ item_label: str = f"""
     {no_qss}
     padding: 10px;
     border: 4px solid rgba(0, 0, 0, 0);
+    text-align: left;
 """
 
 item_checkout_button: str = f"""

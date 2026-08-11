@@ -126,9 +126,10 @@ class MainWidget(QWidget):
             self.rendered_items[item_uuid]["Layout"] = QHBoxLayout()
             self.rendered_items[item_uuid]["Layout"].setContentsMargins(10, 0, 0, 0)
 
-            self.rendered_items[item_uuid]["Label"] = QLabel(data_utils.get_item_information(item_uuid)["name"])
-            self.rendered_items[item_uuid]["Label"].setStyleSheet(qss.item_label)
-            self.rendered_items[item_uuid]["Layout"].addWidget(self.rendered_items[item_uuid]["Label"])
+            self.rendered_items[item_uuid]["ButtonLabel"] = QPushButton(data_utils.get_item_information(item_uuid)["name"])
+            self.rendered_items[item_uuid]["ButtonLabel"].setStyleSheet(qss.item_label)
+            self.rendered_items[item_uuid]["ButtonLabel"].clicked.connect(lambda _, uuid=item_uuid: self.display_info(uuid))
+            self.rendered_items[item_uuid]["Layout"].addWidget(self.rendered_items[item_uuid]["ButtonLabel"])
 
             if self.show_available_inventory:
                 self.rendered_items[item_uuid]["Button"] = QPushButton("Check Out")
@@ -170,6 +171,9 @@ class MainWidget(QWidget):
     def check_out(self, uuid:str):
         data_utils.modify_item_information(uuid, {"availability": "Unavailable"})
         self.render_item_list()
+
+    def display_info(self, uuid:str):
+        print(uuid)
 
 app = QApplication(sys.argv)
 print("running...")
