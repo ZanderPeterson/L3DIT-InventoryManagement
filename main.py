@@ -181,6 +181,10 @@ class MainWidget(QWidget):
         self.info_panel_info["name"].setStyleSheet(qss.no_qss)
         self.infopanellayout.insertWidget(0, self.info_panel_info["name"])
 
+        self.info_panel_info["description"] = QLabel(item_info["description"])
+        self.info_panel_info["description"].setStyleSheet(qss.no_qss)
+        self.infopanellayout.insertWidget(1, self.info_panel_info["description"])
+
 app = QApplication(sys.argv)
 print("running...")
 
