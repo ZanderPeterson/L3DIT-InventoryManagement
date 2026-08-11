@@ -168,10 +168,12 @@ class MainWidget(QWidget):
     def check_in(self, uuid:str):
         data_utils.modify_item_information(uuid, {"availability": "Available"})
         self.render_item_list()
+        self.display_info(uuid)
 
     def check_out(self, uuid:str):
         data_utils.modify_item_information(uuid, {"availability": "Unavailable"})
         self.render_item_list()
+        self.display_info(uuid)
 
     def display_info(self, uuid:str):
         item_info: dict = data_utils.get_item_information(uuid)
