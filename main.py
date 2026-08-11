@@ -30,10 +30,10 @@ class MainWidget(QWidget):
         left_side.addWidget(title_label, alignment=Qt.AlignCenter)
 
         #Set up Search & Filtering
-        search_bar = QLineEdit()
-        search_bar.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
-        search_bar.setStyleSheet(qss.basic_element)
-        right_side.addWidget(search_bar)
+        self.search_bar = QLineEdit()
+        self.search_bar.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
+        self.search_bar.setStyleSheet(qss.basic_element)
+        right_side.addWidget(self.search_bar)
 
         #Set up the inventory available/unavailable buttons
         available_inventory_filter_layout = QHBoxLayout()
@@ -120,7 +120,7 @@ class MainWidget(QWidget):
             item["QWidget"].deleteLater()
         self.rendered_items = {}
 
-        for item_uuid in data_utils.get_items(self.show_available_inventory):
+        for item_uuid in data_utils.get_items(self.show_available_inventory, self.search_bar.text()):
             self.rendered_items[item_uuid] = {}
             self.rendered_items[item_uuid]["QWidget"] = QWidget()
             self.rendered_items[item_uuid]["QWidget"].setStyleSheet(qss.item_in_list)

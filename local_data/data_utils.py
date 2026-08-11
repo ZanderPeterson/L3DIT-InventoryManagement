@@ -27,7 +27,7 @@ def add_uuids_to_items():
     with open(item_csv, mode="w", newline="") as csv_file:
         csv.writer(csv_file).writerows(read_file) #Writes file w/changes.
 
-def get_items(available_filter: bool|None = None) -> list[str]:
+def get_items(available_filter: bool|None = None, search: str|None = None) -> list[str]:
     """
     A function that returns the UUIDs of all the items that meet the filters,
     which are given as arguments to the function.
@@ -38,12 +38,20 @@ def get_items(available_filter: bool|None = None) -> list[str]:
     with open(item_csv, mode="r", newline="") as csv_file:
         read_file = list(csv.reader(csv_file))
         read_file.pop(0)
+        if not search is None:
+            search.replace(" ", "").lower()
+            if search == "":
+                search = None
+            print(search)
         for item in read_file:
             meets_availability_filter: bool|None = None
+            meets_search_filter: bool|None = None
             if not available_filter is None:
                 meets_availability_filter: bool|None = ((available_filter == True and item[1] == "Available") or
                                                         (available_filter == False and item[1] == "Unavailable"))
-            if not meets_availability_filter == False:
+            if not search is None:
+                meets_search_filter = search in (item[2]+item[3]).replace(" ", "").lower()
+            if not meets_availability_filter == False and not meets_search_filter == False:
                 list_of_UUIDs.append(item[0])
     return list_of_UUIDs
 
