@@ -90,7 +90,6 @@ class MainWidget(QWidget):
         self.itemlistwidget.setLayout(self.itemlistlayout)
         self.rendered_items: dict[str, dict[QWidget]] = {}
         self.itemlistlayout.addStretch()
-
         right_side.addWidget(self.itemlistwidget)
 
         #Display the Info Panel
@@ -98,6 +97,7 @@ class MainWidget(QWidget):
         self.infopanelwidget.setStyleSheet(qss.basic_element)
         self.infopanellayout = QVBoxLayout()
         self.infopanelwidget.setLayout(self.infopanellayout)
+        self.info_panel_info: dict[str, dict[QWidget]] = {}
         self.infopanellayout.addStretch()
         left_side.addWidget(self.infopanelwidget)
 
@@ -173,7 +173,12 @@ class MainWidget(QWidget):
         self.render_item_list()
 
     def display_info(self, uuid:str):
-        print(uuid)
+        item_info: dict = data_utils.get_item_information(uuid)
+        for section in self.info_panel_info.values():
+            section.deleteLater()
+        self.info_panel_info["name"] = QLabel(item_info["name"])
+        self.info_panel_info["name"].setStyleSheet(qss.basic_element)
+        self.infopanellayout.insertWidget(0, self.info_panel_info["name"])
 
 app = QApplication(sys.argv)
 print("running...")
