@@ -95,6 +95,7 @@ class MainWidget(QWidget):
         #Display the Info Panel
         self.infopanelwidget = QWidget()
         self.infopanelwidget.setStyleSheet(qss.basic_element)
+        self.infopanelwidget.setContentsMargins(12, 12, 12, 12)
         self.infopanellayout = QVBoxLayout()
         self.infopanelwidget.setLayout(self.infopanellayout)
         self.info_panel_info: dict[str, dict[QWidget]] = {}
@@ -176,8 +177,8 @@ class MainWidget(QWidget):
         item_info: dict = data_utils.get_item_information(uuid)
         for section in self.info_panel_info.values():
             section.deleteLater()
-        self.info_panel_info["name"] = QLabel(item_info["name"])
-        self.info_panel_info["name"].setStyleSheet(qss.basic_element)
+        self.info_panel_info["name"] = QLabel(f"<h1>{item_info["name"]}</h1>")
+        self.info_panel_info["name"].setStyleSheet(qss.no_qss)
         self.infopanellayout.insertWidget(0, self.info_panel_info["name"])
 
 app = QApplication(sys.argv)
