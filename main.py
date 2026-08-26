@@ -178,6 +178,12 @@ class MainWidget(QWidget):
         self.display_info(uuid)
 
     def check_out(self, uuid:str):
+        self.rendered_items[uuid]["CheckWidgetButton"].deleteLater() #Removes the button
+        self.rendered_items[uuid]["CheckWidgetNameField"] = QLineEdit()
+        self.rendered_items[uuid]["CheckWidgetNameField"].returnPressed.connect(lambda: self.complete_check_out(uuid))
+        self.rendered_items[uuid]["CheckWidgetLayout"].addWidget(self.rendered_items[uuid]["CheckWidgetNameField"])
+
+    def complete_check_out(self, uuid:str):
         data_utils.modify_item_information(uuid, {"availability": "Unavailable"})
         self.render_item_list()
         self.display_info(uuid)
