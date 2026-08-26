@@ -132,16 +132,22 @@ class MainWidget(QWidget):
             self.rendered_items[item_uuid]["ButtonLabel"].setStyleSheet(qss.item_label)
             self.rendered_items[item_uuid]["ButtonLabel"].clicked.connect(lambda _, uuid=item_uuid: self.display_info(uuid))
             self.rendered_items[item_uuid]["Layout"].addWidget(self.rendered_items[item_uuid]["ButtonLabel"])
+            self.rendered_items[item_uuid]["CheckWidget"] = QWidget()
 
             if self.show_available_inventory:
-                self.rendered_items[item_uuid]["Button"] = QPushButton("Check Out")
-                self.rendered_items[item_uuid]["Button"].setStyleSheet(qss.item_checkout_button)
-                self.rendered_items[item_uuid]["Button"].clicked.connect(lambda _, uuid=item_uuid: self.check_out(uuid))
+                self.rendered_items[item_uuid]["CheckWidgetButton"] = QPushButton("Check Out")
+                self.rendered_items[item_uuid]["CheckWidgetButton"].setStyleSheet(qss.item_checkout_button)
+                self.rendered_items[item_uuid]["CheckWidgetButton"].clicked.connect(lambda _, uuid=item_uuid: self.check_out(uuid))
             else:
-                self.rendered_items[item_uuid]["Button"] = QPushButton("Check In")
-                self.rendered_items[item_uuid]["Button"].setStyleSheet(qss.item_checkin_button)
-                self.rendered_items[item_uuid]["Button"].clicked.connect(lambda _, uuid=item_uuid: self.check_in(uuid))
-            self.rendered_items[item_uuid]["Layout"].addWidget(self.rendered_items[item_uuid]["Button"])
+                self.rendered_items[item_uuid]["CheckWidgetButton"] = QPushButton("Check In")
+                self.rendered_items[item_uuid]["CheckWidgetButton"].setStyleSheet(qss.item_checkin_button)
+                self.rendered_items[item_uuid]["CheckWidgetButton"].clicked.connect(lambda _, uuid=item_uuid: self.check_in(uuid))
+            self.rendered_items[item_uuid]["CheckWidgetLayout"] = QHBoxLayout()
+            self.rendered_items[item_uuid]["CheckWidgetLayout"].setContentsMargins(0, 0, 0, 0)
+            self.rendered_items[item_uuid]["CheckWidgetLayout"].addWidget(self.rendered_items[item_uuid]["CheckWidgetButton"])
+            self.rendered_items[item_uuid]["CheckWidget"].setLayout(self.rendered_items[item_uuid]["CheckWidgetLayout"])
+
+            self.rendered_items[item_uuid]["Layout"].addWidget(self.rendered_items[item_uuid]["CheckWidget"])
             self.rendered_items[item_uuid]["QWidget"].setLayout(self.rendered_items[item_uuid]["Layout"])
             insert_widget_location = max(0, self.itemlistlayout.count()-1) #Ensures widget is before stretch
             self.itemlistlayout.insertWidget(insert_widget_location, self.rendered_items[item_uuid]["QWidget"])
