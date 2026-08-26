@@ -181,6 +181,7 @@ class MainWidget(QWidget):
         self.rendered_items[uuid]["CheckWidgetButton"].deleteLater() #Removes the button
         self.rendered_items[uuid]["CheckWidgetNameField"] = QLineEdit()
         self.rendered_items[uuid]["CheckWidgetNameField"].setStyleSheet(qss.item_checkout_field)
+        self.rendered_items[uuid]["CheckWidgetNameField"].setPlaceholderText("Enter Name...")
         self.rendered_items[uuid]["CheckWidgetNameField"].returnPressed.connect(lambda: self.complete_check_out(uuid))
         self.rendered_items[uuid]["CheckWidgetLayout"].addWidget(self.rendered_items[uuid]["CheckWidgetNameField"])
 
