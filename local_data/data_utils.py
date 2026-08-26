@@ -39,10 +39,10 @@ def get_items(available_filter: bool|None = None, search: str|None = None) -> li
         read_file = list(csv.reader(csv_file))
         read_file.pop(0)
         if not search is None:
-            search.replace(" ", "").lower()
+            search = search.replace(" ", "").lower()
             if search == "":
                 search = None
-            print(search)
+            print(f"new search: {search}")
         for item in read_file:
             meets_availability_filter: bool|None = None
             meets_search_filter: bool|None = None
