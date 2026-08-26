@@ -28,13 +28,13 @@ class MainWidget(QWidget):
         title_label = QLabel("<h1>Inventory Management</h1>") #Creates a heading for the output section
         title_label.setStyleSheet(qss.basic_element)
         left_side.addWidget(title_label, alignment=Qt.AlignCenter)
-        left_side.addStretch()
 
         #Set up Search & Filtering
-        search_bar = QLineEdit()
-        search_bar.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
-        search_bar.setStyleSheet(qss.basic_element)
-        right_side.addWidget(search_bar)
+        self.search_bar = QLineEdit()
+        self.search_bar.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
+        self.search_bar.setStyleSheet(qss.basic_element)
+        self.search_bar.textChanged.connect(lambda _: self.render_item_list())
+        right_side.addWidget(self.search_bar)
 
         #Set up the inventory available/unavailable buttons
         available_inventory_filter_layout = QHBoxLayout()
@@ -91,8 +91,17 @@ class MainWidget(QWidget):
         self.itemlistwidget.setLayout(self.itemlistlayout)
         self.rendered_items: dict[str, dict[QWidget]] = {}
         self.itemlistlayout.addStretch()
-
         right_side.addWidget(self.itemlistwidget)
+
+        #Display the Info Panel
+        self.infopanelwidget = QWidget()
+        self.infopanelwidget.setStyleSheet(qss.basic_element)
+        self.infopanelwidget.setContentsMargins(12, 12, 12, 12)
+        self.infopanellayout = QVBoxLayout()
+        self.infopanelwidget.setLayout(self.infopanellayout)
+        self.info_panel_info: dict[str, dict[QWidget]] = {}
+        self.infopanellayout.addStretch()
+        left_side.addWidget(self.infopanelwidget)
 
         #Adds both of the sides to the overall layout
         main_columns.addLayout(left_side, stretch=1)
@@ -112,16 +121,17 @@ class MainWidget(QWidget):
             item["QWidget"].deleteLater()
         self.rendered_items = {}
 
-        for item_uuid in data_utils.get_items(self.show_available_inventory):
+        for item_uuid in data_utils.get_items(self.show_available_inventory, self.search_bar.text()):
             self.rendered_items[item_uuid] = {}
             self.rendered_items[item_uuid]["QWidget"] = QWidget()
             self.rendered_items[item_uuid]["QWidget"].setStyleSheet(qss.item_in_list)
             self.rendered_items[item_uuid]["Layout"] = QHBoxLayout()
             self.rendered_items[item_uuid]["Layout"].setContentsMargins(10, 0, 0, 0)
 
-            self.rendered_items[item_uuid]["Label"] = QLabel(data_utils.get_item_information(item_uuid)["name"])
-            self.rendered_items[item_uuid]["Label"].setStyleSheet(qss.item_label)
-            self.rendered_items[item_uuid]["Layout"].addWidget(self.rendered_items[item_uuid]["Label"])
+            self.rendered_items[item_uuid]["ButtonLabel"] = QPushButton(data_utils.get_item_information(item_uuid)["name"])
+            self.rendered_items[item_uuid]["ButtonLabel"].setStyleSheet(qss.item_label)
+            self.rendered_items[item_uuid]["ButtonLabel"].clicked.connect(lambda _, uuid=item_uuid: self.display_info(uuid))
+            self.rendered_items[item_uuid]["Layout"].addWidget(self.rendered_items[item_uuid]["ButtonLabel"])
 
             if self.show_available_inventory:
                 self.rendered_items[item_uuid]["Button"] = QPushButton("Check Out")
@@ -159,10 +169,35 @@ class MainWidget(QWidget):
     def check_in(self, uuid:str):
         data_utils.modify_item_information(uuid, {"availability": "Available"})
         self.render_item_list()
+        self.display_info(uuid)
 
     def check_out(self, uuid:str):
         data_utils.modify_item_information(uuid, {"availability": "Unavailable"})
         self.render_item_list()
+        self.display_info(uuid)
+
+    def display_info(self, uuid:str):
+        item_info: dict = data_utils.get_item_information(uuid)
+        for section in self.info_panel_info.values():
+            section.deleteLater()
+        self.info_panel_info["name"] = QLabel(f"<h1>{item_info["name"]}</h1>")
+        self.info_panel_info["name"].setStyleSheet(qss.no_qss)
+        self.infopanellayout.insertWidget(0, self.info_panel_info["name"])
+
+        self.info_panel_info["description"] = QLabel(item_info["description"])
+        self.info_panel_info["description"].setStyleSheet(qss.no_qss)
+        self.infopanellayout.insertWidget(1, self.info_panel_info["description"])
+
+        if item_info["is_available"] == "Available":
+            self.info_panel_info["Button"] = QPushButton("Check Out")
+            self.info_panel_info["Button"].setStyleSheet(qss.item_checkout_button)
+            self.info_panel_info["Button"].clicked.connect(lambda _: self.check_out(uuid))
+        else:
+            self.info_panel_info["Button"] = QPushButton("Check In")
+            self.info_panel_info["Button"].setStyleSheet(qss.item_checkin_button)
+            self.info_panel_info["Button"].clicked.connect(lambda _: self.check_in(uuid))
+        self.infopanellayout.addWidget(self.info_panel_info["Button"])
+
 
 app = QApplication(sys.argv)
 print("running...")
