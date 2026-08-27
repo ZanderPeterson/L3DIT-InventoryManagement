@@ -183,6 +183,7 @@ class MainWidget(QWidget):
         self.rendered_items[uuid]["CheckWidgetNameField"] = QLineEdit()
         self.rendered_items[uuid]["CheckWidgetNameField"].setStyleSheet(qss.item_checkout_field)
         self.rendered_items[uuid]["CheckWidgetNameField"].setPlaceholderText("Enter Name...")
+        self.rendered_items[uuid]["CheckWidgetNameField"].textChanged.connect(lambda: self.on_check_out_field_change(uuid, "Item"))
         self.rendered_items[uuid]["CheckWidgetNameField"].returnPressed.connect(lambda: self.complete_check_out(uuid))
         self.rendered_items[uuid]["CheckWidgetLayout"].addWidget(self.rendered_items[uuid]["CheckWidgetNameField"])
 
@@ -193,8 +194,15 @@ class MainWidget(QWidget):
         self.info_panel_info["CheckWidgetNameField"] = QLineEdit()
         self.info_panel_info["CheckWidgetNameField"].setStyleSheet(qss.item_checkout_field)
         self.info_panel_info["CheckWidgetNameField"].setPlaceholderText("Enter Name...")
+        self.info_panel_info["CheckWidgetNameField"].textChanged.connect(lambda: self.on_check_out_field_change(uuid, "InfoPanel"))
         self.info_panel_info["CheckWidgetNameField"].returnPressed.connect(lambda: self.complete_check_out(uuid))
         self.info_panel_info["CheckWidgetLayout"].addWidget(self.info_panel_info["CheckWidgetNameField"])
+
+    def on_check_out_field_change(self, uuid:str, field:str):
+        if field == "InfoPanel":
+            self.rendered_items[uuid]["CheckWidgetNameField"].setText(self.info_panel_info["CheckWidgetNameField"].text())
+        elif field == "Item":
+            self.info_panel_info["CheckWidgetNameField"].setText(self.rendered_items[uuid]["CheckWidgetNameField"].text())
 
     def complete_check_out(self, uuid:str):
         modifications: dict[str, str] = {
