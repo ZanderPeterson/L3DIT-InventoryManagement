@@ -178,12 +178,23 @@ class MainWidget(QWidget):
         self.display_info(uuid)
 
     def check_out(self, uuid:str):
+        #Replaces Check Out Button on Item with Text Field (for name entry)
         self.rendered_items[uuid]["CheckWidgetButton"].deleteLater() #Removes the button
         self.rendered_items[uuid]["CheckWidgetNameField"] = QLineEdit()
         self.rendered_items[uuid]["CheckWidgetNameField"].setStyleSheet(qss.item_checkout_field)
         self.rendered_items[uuid]["CheckWidgetNameField"].setPlaceholderText("Enter Name...")
         self.rendered_items[uuid]["CheckWidgetNameField"].returnPressed.connect(lambda: self.complete_check_out(uuid))
         self.rendered_items[uuid]["CheckWidgetLayout"].addWidget(self.rendered_items[uuid]["CheckWidgetNameField"])
+
+        self.display_info(uuid)
+
+        #Replaces Check Out Button in Item Info with Text Field (for name entry as well)
+        self.info_panel_info["CheckWidgetButton"].deleteLater() #Removes the button
+        self.info_panel_info["CheckWidgetNameField"] = QLineEdit()
+        self.info_panel_info["CheckWidgetNameField"].setStyleSheet(qss.item_checkout_field)
+        self.info_panel_info["CheckWidgetNameField"].setPlaceholderText("Enter Name...")
+        self.info_panel_info["CheckWidgetNameField"].returnPressed.connect(lambda: self.complete_check_out(uuid))
+        self.info_panel_info["CheckWidgetLayout"].addWidget(self.info_panel_info["CheckWidgetNameField"])
 
     def complete_check_out(self, uuid:str):
         data_utils.modify_item_information(uuid, {"availability": "Unavailable"})
@@ -193,7 +204,10 @@ class MainWidget(QWidget):
     def display_info(self, uuid:str):
         item_info: dict = data_utils.get_item_information(uuid)
         for section in self.info_panel_info.values():
-            section.deleteLater()
+            try:
+                section.deleteLater()
+            except RuntimeError:
+                continue
         self.info_panel_info["name"] = QLabel(f"<h1>{item_info["name"]}</h1>")
         self.info_panel_info["name"].setStyleSheet(qss.no_qss)
         self.infopanellayout.insertWidget(0, self.info_panel_info["name"])
@@ -202,15 +216,20 @@ class MainWidget(QWidget):
         self.info_panel_info["description"].setStyleSheet(qss.no_qss)
         self.infopanellayout.insertWidget(1, self.info_panel_info["description"])
 
+        self.info_panel_info["CheckWidget"] = QWidget()
         if item_info["is_available"] == "Available":
-            self.info_panel_info["Button"] = QPushButton("Check Out")
-            self.info_panel_info["Button"].setStyleSheet(qss.item_checkout_button)
-            self.info_panel_info["Button"].clicked.connect(lambda _: self.check_out(uuid))
+            self.info_panel_info["CheckWidgetButton"] = QPushButton("Check Out")
+            self.info_panel_info["CheckWidgetButton"].setStyleSheet(qss.item_checkout_button)
+            self.info_panel_info["CheckWidgetButton"].clicked.connect(lambda _: self.check_out(uuid))
         else:
-            self.info_panel_info["Button"] = QPushButton("Check In")
-            self.info_panel_info["Button"].setStyleSheet(qss.item_checkin_button)
-            self.info_panel_info["Button"].clicked.connect(lambda _: self.check_in(uuid))
-        self.infopanellayout.addWidget(self.info_panel_info["Button"])
+            self.info_panel_info["CheckWidgetButton"] = QPushButton("Check In")
+            self.info_panel_info["CheckWidgetButton"].setStyleSheet(qss.item_checkin_button)
+            self.info_panel_info["CheckWidgetButton"].clicked.connect(lambda _: self.check_in(uuid))
+        self.info_panel_info["CheckWidgetLayout"] = QHBoxLayout()
+        self.info_panel_info["CheckWidgetLayout"].setContentsMargins(0, 0, 0, 0)
+        self.info_panel_info["CheckWidgetLayout"].addWidget(self.info_panel_info["CheckWidgetButton"])
+        self.info_panel_info["CheckWidget"].setLayout(self.info_panel_info["CheckWidgetLayout"])
+        self.infopanellayout.addWidget(self.info_panel_info["CheckWidget"])
 
 
 app = QApplication(sys.argv)
