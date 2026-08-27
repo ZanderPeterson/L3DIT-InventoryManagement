@@ -197,7 +197,11 @@ class MainWidget(QWidget):
         self.info_panel_info["CheckWidgetLayout"].addWidget(self.info_panel_info["CheckWidgetNameField"])
 
     def complete_check_out(self, uuid:str):
-        data_utils.modify_item_information(uuid, {"availability": "Unavailable"})
+        modifications: dict[str, str] = {
+            "availability": "Unavailable",
+            "lastusedby": self.info_panel_info["CheckWidgetNameField"].text()
+        }
+        data_utils.modify_item_information(uuid, modifications)
         self.render_item_list()
         self.display_info(uuid)
 
@@ -230,7 +234,6 @@ class MainWidget(QWidget):
         self.info_panel_info["CheckWidgetLayout"].addWidget(self.info_panel_info["CheckWidgetButton"])
         self.info_panel_info["CheckWidget"].setLayout(self.info_panel_info["CheckWidgetLayout"])
         self.infopanellayout.addWidget(self.info_panel_info["CheckWidget"])
-
 
 app = QApplication(sys.argv)
 print("running...")

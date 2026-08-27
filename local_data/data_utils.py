@@ -91,6 +91,11 @@ def modify_item_information(uuid:str, modifications: dict[str, str]):
                 except KeyError:
                     pass
 
+                try:
+                    row[4] = modifications["lastusedby"]
+                except KeyError:
+                    pass
+
     with open(item_csv, mode="w", newline="") as csv_file:
         csv.writer(csv_file).writerows(read_file)
 
