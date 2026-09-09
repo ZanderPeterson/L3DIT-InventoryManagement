@@ -131,6 +131,12 @@ item_checkout_button: str = f"""
     }}
 """
 
+item_checkout_field: str = f"""
+    {basic_element}
+    margin: 0px;
+    background-color: #ffffaa;
+"""
+
 item_checkin_button: str = f"""
     QPushButton {{
         {basic_element}

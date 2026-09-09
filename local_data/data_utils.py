@@ -69,6 +69,7 @@ def get_item_information(uuid:str) -> dict[str, str]:
                 item_info["is_available"] = item[1]
                 item_info["name"] = item[2]
                 item_info["description"] = item[3]
+                item_info["lastusedby"] = item[4]
     return item_info
 
 def modify_item_information(uuid:str, modifications: dict[str, str]):
@@ -88,6 +89,11 @@ def modify_item_information(uuid:str, modifications: dict[str, str]):
 
                 try:
                     row[3] = modifications["description"]
+                except KeyError:
+                    pass
+
+                try:
+                    row[4] = modifications["lastusedby"]
                 except KeyError:
                     pass
 
