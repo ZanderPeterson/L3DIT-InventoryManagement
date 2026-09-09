@@ -90,6 +90,10 @@ class MainWidget(QWidget):
         self.itemlistlayout = QVBoxLayout()
         self.itemlistwidget.setLayout(self.itemlistlayout)
         self.rendered_items: dict[str, dict[QWidget]] = {}
+        self.no_items_popup = QLabel("No items matched your search")
+        self.no_items_popup.setStyleSheet(qss.basic_element)
+        self.no_items_popup.setVisible(False)
+        self.itemlistlayout.addWidget(self.no_items_popup)
         self.itemlistlayout.addStretch()
         right_side.addWidget(self.itemlistwidget)
 
@@ -121,7 +125,9 @@ class MainWidget(QWidget):
             item["QWidget"].deleteLater()
         self.rendered_items = {}
 
-        for item_uuid in data_utils.get_items(self.show_available_inventory, self.search_bar.text()):
+        items: List[str] = data_utils.get_items(self.show_available_inventory, self.search_bar.text())
+        self.no_items_popup.setVisible(len(items) == 0) #Shows the "no items" popup if no items are found
+        for item_uuid in items:
             self.rendered_items[item_uuid] = {}
             self.rendered_items[item_uuid]["QWidget"] = QWidget()
             self.rendered_items[item_uuid]["QWidget"].setStyleSheet(qss.item_in_list)
