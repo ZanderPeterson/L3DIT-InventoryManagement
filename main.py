@@ -220,6 +220,8 @@ class MainWidget(QWidget):
                 section.deleteLater()
             except RuntimeError:
                 continue
+            except AttributeError:
+                continue
         self.info_panel_info["name"] = QLabel(f"<h1>{item_info["name"]}</h1>")
         self.info_panel_info["name"].setStyleSheet(qss.no_qss)
         self.infopanellayout.insertWidget(0, self.info_panel_info["name"])
@@ -227,6 +229,11 @@ class MainWidget(QWidget):
         self.info_panel_info["description"] = QLabel(item_info["description"])
         self.info_panel_info["description"].setStyleSheet(qss.no_qss)
         self.infopanellayout.insertWidget(1, self.info_panel_info["description"])
+
+        self.info_panel_info["LastUsedByText"] = f"Item last checked out by: <b>{item_info['lastusedby']}</b>."
+        self.info_panel_info["lastusedby"] = QLabel(self.info_panel_info["LastUsedByText"])
+        self.info_panel_info["lastusedby"].setStyleSheet(qss.no_qss)
+        self.infopanellayout.addWidget(self.info_panel_info["lastusedby"])
 
         self.info_panel_info["CheckWidget"] = QWidget()
         if item_info["is_available"] == "Available":
