@@ -126,6 +126,7 @@ class MainWidget(QWidget):
         self.rendered_items = {}
 
         items: List[str] = data_utils.get_items(self.show_available_inventory, self.search_bar.text())
+        self.no_items_popup.setText("Unfortunately, No items matched with your search & filters")
         self.no_items_popup.setVisible(len(items) == 0) #Shows the "no items" popup if no items are found
         for item_uuid in items:
             self.rendered_items[item_uuid] = {}
