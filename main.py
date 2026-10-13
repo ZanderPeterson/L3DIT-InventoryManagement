@@ -7,6 +7,7 @@ import sys #Required for opening a window
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (QApplication, QLabel, QLineEdit, QPushButton,
                                QHBoxLayout, QVBoxLayout, QWidget, QSizePolicy) #The library utilised for the GUI
+from PySide6.QtCore import QTimer
 
 #Local Libraries
 import qss
@@ -193,6 +194,7 @@ class MainWidget(QWidget):
         self.rendered_items[uuid]["CheckWidgetNameField"].textChanged.connect(lambda: self.on_check_out_field_change(uuid, "Item"))
         self.rendered_items[uuid]["CheckWidgetNameField"].returnPressed.connect(lambda: self.complete_check_out(uuid))
         self.rendered_items[uuid]["CheckWidgetLayout"].addWidget(self.rendered_items[uuid]["CheckWidgetNameField"])
+        QTimer.singleShot(0, self.rendered_items[uuid]["CheckWidgetNameField"].setFocus)
 
         self.display_info(uuid)
 
