@@ -106,6 +106,7 @@ class MainWidget(QWidget):
         self.infopanelwidget.setLayout(self.infopanellayout)
         self.info_panel_info: dict[str, dict[QWidget]] = {}
         self.infopanellayout.addStretch()
+        self.currently_viewed_uuid = 0
         left_side.addWidget(self.infopanelwidget)
 
         #Adds both of the sides to the overall layout
@@ -122,6 +123,7 @@ class MainWidget(QWidget):
         """
         Renders all items in item screen.
         """
+        self.display_info()
         for item in self.rendered_items.values():
             item["QWidget"].deleteLater()
         self.rendered_items = {}
@@ -222,7 +224,15 @@ class MainWidget(QWidget):
         self.render_item_list()
         self.display_info(uuid)
 
-    def display_info(self, uuid:str):
+    def display_info(self, uuid:str|None = None):
+        if uuid is None:
+            uuid = self.currently_viewed_uuid
+        else:
+            self.currently_viewed_uuid = uuid
+
+        if uuid == 0:
+            return #If no item has been selected for display
+
         item_info: dict = data_utils.get_item_information(uuid)
         for section in self.info_panel_info.values():
             try:
