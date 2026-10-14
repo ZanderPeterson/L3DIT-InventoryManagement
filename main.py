@@ -31,11 +31,17 @@ class MainWidget(QWidget):
         left_side.addWidget(title_label, alignment=Qt.AlignCenter)
 
         #Set up Search & Filtering
+        self.search_layout = QHBoxLayout()
+        self.search_icon = QLabel()
+        self.search_icon.setStyleSheet(qss.search_icon)
+        self.search_layout.addWidget(self.search_icon)
+
         self.search_bar = QLineEdit()
         self.search_bar.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
         self.search_bar.setStyleSheet(qss.basic_element)
         self.search_bar.textChanged.connect(lambda _: self.render_item_list())
-        right_side.addWidget(self.search_bar)
+        self.search_layout.addWidget(self.search_bar)
+        right_side.addLayout(self.search_layout)
 
         #Set up the inventory available/unavailable buttons
         available_inventory_filter_layout = QHBoxLayout()

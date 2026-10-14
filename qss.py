@@ -5,6 +5,7 @@ no_qss: str = f"""
     padding: 0px; 
     margin: 0px;
 """
+
 basic_element: str = f"""
     background-color: #cccccc; 
     color: black; 
@@ -12,12 +13,24 @@ basic_element: str = f"""
     border: 2px solid black; 
     border-radius: 16px;
 """
+
 basic_button_hover: str = f"""
     border-color: #5555cc;
 """
+
 basic_button_pressed: str = f"""
     border-color: #5555cc;
 """
+
+search_icon: str = f"""
+    {basic_element}
+    image: url("Search_Icon_250px.png");
+    max-width: 20px;
+    max-height: 20px;
+    min-width: 20px;
+    min-height: 20px;
+"""
+
 inventory_available_button_style: str = f"""
     QPushButton {{
         {basic_element}
@@ -32,6 +45,7 @@ inventory_available_button_style: str = f"""
         background-color: #55ff55;
     }}
 """
+
 inventory_unavailable_button_style: str = f"""
     QPushButton {{
         {basic_element}
