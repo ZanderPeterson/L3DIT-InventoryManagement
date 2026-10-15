@@ -10,6 +10,7 @@ import uuid
 
 #File Names
 item_csv: str = "local_data/items.csv"
+issues_csv: str = "local_data/issues.csv"
 
 def add_uuids_to_items():
     """
@@ -59,9 +60,16 @@ def get_item_information(uuid:str) -> dict[str, str]:
     """
     A function that returns the basic information of an item, given the UUID.
     This currently gives the Name of the item & the item description,
-    but will later give availability, number of issues, etc.
+    availability, and a list of issues.
+    The dictionary has the following keys & values:
+    ['issues'] —> A string containing an array of strings with have the item's
+                  issues. If no issues are found, this array will be empty.
+    ['is_available'] —> Should either be 'Available' or 'Unavailable'
+    ['name'] —> A string containing the item's name.
+    ['description'] —> A string containing the item's description
+    ['lastusedby'] —> A string containing the name of the item's last user.
     """
-    item_info: dict[str, str] = {}
+    item_info: dict[str, str] = {"issues": []}
     with open(item_csv, mode="r", newline="") as csv_file:
         read_file = list(csv.reader(csv_file))
         for item in read_file:
@@ -70,6 +78,11 @@ def get_item_information(uuid:str) -> dict[str, str]:
                 item_info["name"] = item[2]
                 item_info["description"] = item[3]
                 item_info["lastusedby"] = item[4]
+    with open(issues_csv, mode="r", newline="") as csv_file:
+        read_file = list(csv.reader(csv_file))
+        for item in read_file:
+            if item[0] == uuid:
+                item_info["issues"].append(item[1])
     return item_info
 
 def modify_item_information(uuid:str, modifications: dict[str, str]):
