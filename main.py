@@ -254,6 +254,7 @@ class MainWidget(QWidget):
 
         self.info_panel_info["description"] = QLabel(item_info["description"])
         self.info_panel_info["description"].setStyleSheet(qss.no_qss)
+        self.info_panel_info["description"].setWordWrap(True)
         self.infopanellayout.insertWidget(1, self.info_panel_info["description"])
 
         self.info_panel_info["LastUsedByText"] = f"Item last checked out by: <b>{item_info['lastusedby']}</b>."
