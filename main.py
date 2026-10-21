@@ -70,24 +70,24 @@ class MainWidget(QWidget):
         issue_filter_label = QLabel("Sort By:")
         issue_filter_label.setStyleSheet(qss.basic_element)
         issue_filter_layout.addWidget(issue_filter_label, stretch=1)
-        self.show_issues: int = 0 #noissues = 0, issues = 1, all = 2
+        self.show_issues: bool|None = False #noissues = False, issues = True, all = None
 
         self.noissues_filter_button = QPushButton("No Issues")
         self.noissues_filter_button.setStyleSheet(qss.noissues_button_style)
         self.noissues_filter_button.setCheckable(True)
-        self.noissues_filter_button.clicked.connect(lambda: self.issues_filter(0))
+        self.noissues_filter_button.clicked.connect(lambda: self.issues_filter(False))
         issue_filter_layout.addWidget(self.noissues_filter_button, stretch=1)
 
         self.issues_filter_button = QPushButton("Issues")
         self.issues_filter_button.setStyleSheet(qss.issues_button_style)
         self.issues_filter_button.setCheckable(True)
-        self.issues_filter_button.clicked.connect(lambda: self.issues_filter(1))
+        self.issues_filter_button.clicked.connect(lambda: self.issues_filter(True))
         issue_filter_layout.addWidget(self.issues_filter_button, stretch=1)
 
         self.all_filter_button = QPushButton("All")
         self.all_filter_button.setStyleSheet(qss.all_button_style)
         self.all_filter_button.setCheckable(True)
-        self.all_filter_button.clicked.connect(lambda: self.issues_filter(2))
+        self.all_filter_button.clicked.connect(lambda: self.issues_filter(None))
         issue_filter_layout.addWidget(self.all_filter_button, stretch=1)
 
         right_side.addLayout(issue_filter_layout)
@@ -135,7 +135,7 @@ class MainWidget(QWidget):
             item["QWidget"].deleteLater()
         self.rendered_items = {}
 
-        items: List[str] = data_utils.get_items(self.show_available_inventory, self.search_bar.text())
+        items: List[str] = data_utils.get_items(self.show_available_inventory, self.show_issues, self.search_bar.text())
         self.no_items_popup.setText("Unfortunately, No items matched with your search & filters")
         self.no_items_popup.setVisible(len(items) == 0) #Shows the "no items" popup if no items are found
         for item_uuid in items:
@@ -183,11 +183,11 @@ class MainWidget(QWidget):
             self.itemlistwidget.setStyleSheet(qss.item_list_unavailable)
         self.render_item_list()
 
-    def issues_filter(self, issues_filter_pressed: int):
+    def issues_filter(self, issues_filter_pressed: bool|None):
         self.show_issues = issues_filter_pressed
-        self.noissues_filter_button.setChecked(self.show_issues == 0)
-        self.issues_filter_button.setChecked(self.show_issues == 1)
-        self.all_filter_button.setChecked(self.show_issues == 2)
+        self.noissues_filter_button.setChecked(self.show_issues == False)
+        self.issues_filter_button.setChecked(self.show_issues == True)
+        self.all_filter_button.setChecked(self.show_issues is None)
 
     def check_in(self, uuid:str):
         data_utils.modify_item_information(uuid, {"availability": "Available"})
