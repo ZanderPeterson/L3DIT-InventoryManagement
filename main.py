@@ -188,6 +188,7 @@ class MainWidget(QWidget):
         self.noissues_filter_button.setChecked(self.show_issues == False)
         self.issues_filter_button.setChecked(self.show_issues == True)
         self.all_filter_button.setChecked(self.show_issues is None)
+        self.render_item_list()
 
     def check_in(self, uuid:str):
         data_utils.modify_item_information(uuid, {"availability": "Available"})
