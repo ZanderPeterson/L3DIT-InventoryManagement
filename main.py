@@ -150,8 +150,13 @@ class MainWidget(QWidget):
             self.rendered_items[item_uuid]["ButtonLabel"].setStyleSheet(qss.item_label)
             self.rendered_items[item_uuid]["ButtonLabel"].clicked.connect(lambda _, uuid=item_uuid: self.display_info(uuid))
             self.rendered_items[item_uuid]["Layout"].addWidget(self.rendered_items[item_uuid]["ButtonLabel"], stretch=2)
-            self.rendered_items[item_uuid]["CheckWidget"] = QWidget()
 
+            number_of_issues: int = len(data_utils.get_item_information(item_uuid)["issues"])
+            self.rendered_items[item_uuid]["IssuesNumber"] = QLabel(f"{number_of_issues}")
+            self.rendered_items[item_uuid]["IssuesNumber"].setStyleSheet(qss.info_box_issues)
+            self.rendered_items[item_uuid]["Layout"].addWidget(self.rendered_items[item_uuid]["IssuesNumber"])
+
+            self.rendered_items[item_uuid]["CheckWidget"] = QWidget()
             if self.show_available_inventory:
                 self.rendered_items[item_uuid]["CheckWidgetButton"] = QPushButton("Check Out")
                 self.rendered_items[item_uuid]["CheckWidgetButton"].setStyleSheet(qss.item_checkout_button)
