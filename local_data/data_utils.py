@@ -10,6 +10,7 @@ import uuid
 
 #File Names
 item_csv: str = "local_data/items.csv"
+issues_csv: str = "local_data/issues.csv"
 
 def add_uuids_to_items():
     """
@@ -27,7 +28,8 @@ def add_uuids_to_items():
     with open(item_csv, mode="w", newline="") as csv_file:
         csv.writer(csv_file).writerows(read_file) #Writes file w/changes.
 
-def get_items(available_filter: bool|None = None, search: str|None = None) -> list[str]:
+def get_items(available_filter: bool|None = None, issues_filter: bool|None = None,
+              search: str|None = None) -> list[str]:
     """
     A function that returns the UUIDs of all the items that meet the filters,
     which are given as arguments to the function.
@@ -45,12 +47,18 @@ def get_items(available_filter: bool|None = None, search: str|None = None) -> li
             print(f"new search: {search}")
         for item in read_file:
             meets_availability_filter: bool|None = None
+            meets_issues_filter: bool|None = None
             meets_search_filter: bool|None = None
+            item_information: dict[str, str] = get_item_information(item[0])
             if not available_filter is None:
-                meets_availability_filter: bool|None = ((available_filter == True and item[1] == "Available") or
-                                                        (available_filter == False and item[1] == "Unavailable"))
+                meets_availability_filter = ((available_filter == True and item_information["is_available"] == "Available") or
+                                             (available_filter == False and item_information["is_available"] == "Unavailable"))
+            if not issues_filter is None:
+                meets_search_filter = ((issues_filter == True and len(item_information["issues"]) >= 1) or
+                                       (issues_filter == False and len(item_information["issues"]) == 0))
             if not search is None:
-                meets_search_filter = search in (item[2]+item[3]).replace(" ", "").lower()
+                to_search: str = item_information["name"]+item_information["description"]
+                meets_search_filter = search in (to_search).replace(" ", "").lower()
             if not meets_availability_filter == False and not meets_search_filter == False:
                 list_of_UUIDs.append(item[0])
     return list_of_UUIDs
@@ -59,9 +67,16 @@ def get_item_information(uuid:str) -> dict[str, str]:
     """
     A function that returns the basic information of an item, given the UUID.
     This currently gives the Name of the item & the item description,
-    but will later give availability, number of issues, etc.
+    availability, and a list of issues.
+    The dictionary has the following keys & values:
+    ['issues'] —> A string containing an array of strings with have the item's
+                  issues. If no issues are found, this array will be empty.
+    ['is_available'] —> Should either be 'Available' or 'Unavailable'
+    ['name'] —> A string containing the item's name.
+    ['description'] —> A string containing the item's description
+    ['lastusedby'] —> A string containing the name of the item's last user.
     """
-    item_info: dict[str, str] = {}
+    item_info: dict[str, str] = {"issues": []}
     with open(item_csv, mode="r", newline="") as csv_file:
         read_file = list(csv.reader(csv_file))
         for item in read_file:
@@ -70,6 +85,11 @@ def get_item_information(uuid:str) -> dict[str, str]:
                 item_info["name"] = item[2]
                 item_info["description"] = item[3]
                 item_info["lastusedby"] = item[4]
+    with open(issues_csv, mode="r", newline="") as csv_file:
+        read_file = list(csv.reader(csv_file))
+        for item in read_file:
+            if item[0] == uuid:
+                item_info["issues"].append(item[1])
     return item_info
 
 def modify_item_information(uuid:str, modifications: dict[str, str]):
@@ -99,6 +119,11 @@ def modify_item_information(uuid:str, modifications: dict[str, str]):
 
     with open(item_csv, mode="w", newline="") as csv_file:
         csv.writer(csv_file).writerows(read_file)
+
+def add_new_issue(uuid:str, issue:str):
+    with open(issues_csv, mode="a", newline="") as csv_file:
+        writer = csv.writer(csv_file)
+        writer.writerow([uuid, issue])
 
 if __name__ == "__main__":
     print("Warning: File is intended to be used for utilities rather than run directly.")

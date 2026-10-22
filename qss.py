@@ -5,6 +5,7 @@ no_qss: str = f"""
     padding: 0px; 
     margin: 0px;
 """
+
 basic_element: str = f"""
     background-color: #cccccc; 
     color: black; 
@@ -12,12 +13,24 @@ basic_element: str = f"""
     border: 2px solid black; 
     border-radius: 16px;
 """
+
 basic_button_hover: str = f"""
     border-color: #5555cc;
 """
+
 basic_button_pressed: str = f"""
     border-color: #5555cc;
 """
+
+search_icon: str = f"""
+    {basic_element}
+    image: url("Search_Icon_250px.png");
+    max-width: 20px;
+    max-height: 20px;
+    min-width: 20px;
+    min-height: 20px;
+"""
+
 inventory_available_button_style: str = f"""
     QPushButton {{
         {basic_element}
@@ -32,6 +45,7 @@ inventory_available_button_style: str = f"""
         background-color: #55ff55;
     }}
 """
+
 inventory_unavailable_button_style: str = f"""
     QPushButton {{
         {basic_element}
@@ -65,7 +79,7 @@ noissues_button_style: str = f"""
 issues_button_style: str = f"""
     QPushButton {{
         {basic_element}
-        background-color: #ffffaa;
+        background-color: #ffccaa;
     }}
     QPushButton:hover {{
         {basic_button_hover}
@@ -73,7 +87,7 @@ issues_button_style: str = f"""
     }}
     QPushButton:checked {{
         {basic_button_pressed}
-        background-color: #ffff55;
+        background-color: #ffaa55;
     }}
 """
 
@@ -112,6 +126,16 @@ item_label: str = f"""
     padding: 10px;
     border: 4px solid rgba(0, 0, 0, 0);
     text-align: left;
+"""
+
+item_has_issues: str = f"""
+    {basic_element}
+    background-color: #ffccaa;
+"""
+
+item_has_no_issues: str = f"""
+    {basic_element}
+    background-color: #aaffaa;
 """
 
 item_checkout_button: str = f"""

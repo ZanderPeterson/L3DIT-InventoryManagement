@@ -7,6 +7,7 @@ import sys #Required for opening a window
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (QApplication, QLabel, QLineEdit, QPushButton,
                                QHBoxLayout, QVBoxLayout, QWidget, QSizePolicy) #The library utilised for the GUI
+from PySide6.QtCore import QTimer
 
 #Local Libraries
 import qss
@@ -30,11 +31,18 @@ class MainWidget(QWidget):
         left_side.addWidget(title_label, alignment=Qt.AlignCenter)
 
         #Set up Search & Filtering
+        self.search_layout = QHBoxLayout()
+        self.search_icon = QLabel()
+        self.search_icon.setStyleSheet(qss.search_icon)
+        self.search_layout.addWidget(self.search_icon)
+
         self.search_bar = QLineEdit()
         self.search_bar.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
         self.search_bar.setStyleSheet(qss.basic_element)
+        self.search_bar.setPlaceholderText("Enter your search...")
         self.search_bar.textChanged.connect(lambda _: self.render_item_list())
-        right_side.addWidget(self.search_bar)
+        self.search_layout.addWidget(self.search_bar)
+        right_side.addLayout(self.search_layout)
 
         #Set up the inventory available/unavailable buttons
         available_inventory_filter_layout = QHBoxLayout()
@@ -62,24 +70,24 @@ class MainWidget(QWidget):
         issue_filter_label = QLabel("Sort By:")
         issue_filter_label.setStyleSheet(qss.basic_element)
         issue_filter_layout.addWidget(issue_filter_label, stretch=1)
-        self.show_issues: int = 0 #noissues = 0, issues = 1, all = 2
+        self.show_issues: bool|None = False #noissues = False, issues = True, all = None
 
         self.noissues_filter_button = QPushButton("No Issues")
         self.noissues_filter_button.setStyleSheet(qss.noissues_button_style)
         self.noissues_filter_button.setCheckable(True)
-        self.noissues_filter_button.clicked.connect(lambda: self.issues_filter(0))
+        self.noissues_filter_button.clicked.connect(lambda: self.issues_filter(False))
         issue_filter_layout.addWidget(self.noissues_filter_button, stretch=1)
 
         self.issues_filter_button = QPushButton("Issues")
         self.issues_filter_button.setStyleSheet(qss.issues_button_style)
         self.issues_filter_button.setCheckable(True)
-        self.issues_filter_button.clicked.connect(lambda: self.issues_filter(1))
+        self.issues_filter_button.clicked.connect(lambda: self.issues_filter(True))
         issue_filter_layout.addWidget(self.issues_filter_button, stretch=1)
 
         self.all_filter_button = QPushButton("All")
         self.all_filter_button.setStyleSheet(qss.all_button_style)
         self.all_filter_button.setCheckable(True)
-        self.all_filter_button.clicked.connect(lambda: self.issues_filter(2))
+        self.all_filter_button.clicked.connect(lambda: self.issues_filter(None))
         issue_filter_layout.addWidget(self.all_filter_button, stretch=1)
 
         right_side.addLayout(issue_filter_layout)
@@ -90,6 +98,10 @@ class MainWidget(QWidget):
         self.itemlistlayout = QVBoxLayout()
         self.itemlistwidget.setLayout(self.itemlistlayout)
         self.rendered_items: dict[str, dict[QWidget]] = {}
+        self.no_items_popup = QLabel("No items matched your search")
+        self.no_items_popup.setStyleSheet(qss.basic_element)
+        self.no_items_popup.setVisible(False)
+        self.itemlistlayout.addWidget(self.no_items_popup)
         self.itemlistlayout.addStretch()
         right_side.addWidget(self.itemlistwidget)
 
@@ -100,7 +112,9 @@ class MainWidget(QWidget):
         self.infopanellayout = QVBoxLayout()
         self.infopanelwidget.setLayout(self.infopanellayout)
         self.info_panel_info: dict[str, dict[QWidget]] = {}
+        self.info_panel_issues: list[dict[QWidget]] = []
         self.infopanellayout.addStretch()
+        self.currently_viewed_uuid = 0
         left_side.addWidget(self.infopanelwidget)
 
         #Adds both of the sides to the overall layout
@@ -117,11 +131,15 @@ class MainWidget(QWidget):
         """
         Renders all items in item screen.
         """
+        self.display_info()
         for item in self.rendered_items.values():
             item["QWidget"].deleteLater()
         self.rendered_items = {}
 
-        for item_uuid in data_utils.get_items(self.show_available_inventory, self.search_bar.text()):
+        items: List[str] = data_utils.get_items(self.show_available_inventory, self.show_issues, self.search_bar.text())
+        self.no_items_popup.setText("Unfortunately, No items matched with your search & filters")
+        self.no_items_popup.setVisible(len(items) == 0) #Shows the "no items" popup if no items are found
+        for item_uuid in items:
             self.rendered_items[item_uuid] = {}
             self.rendered_items[item_uuid]["QWidget"] = QWidget()
             self.rendered_items[item_uuid]["QWidget"].setStyleSheet(qss.item_in_list)
@@ -132,8 +150,16 @@ class MainWidget(QWidget):
             self.rendered_items[item_uuid]["ButtonLabel"].setStyleSheet(qss.item_label)
             self.rendered_items[item_uuid]["ButtonLabel"].clicked.connect(lambda _, uuid=item_uuid: self.display_info(uuid))
             self.rendered_items[item_uuid]["Layout"].addWidget(self.rendered_items[item_uuid]["ButtonLabel"], stretch=2)
-            self.rendered_items[item_uuid]["CheckWidget"] = QWidget()
 
+            number_of_issues: int = len(data_utils.get_item_information(item_uuid)["issues"])
+            self.rendered_items[item_uuid]["IssuesNumber"] = QLabel(f"{number_of_issues}")
+            if number_of_issues >= 1:
+                self.rendered_items[item_uuid]["IssuesNumber"].setStyleSheet(qss.item_has_issues)
+            else:
+                self.rendered_items[item_uuid]["IssuesNumber"].setStyleSheet(qss.item_has_no_issues)
+            self.rendered_items[item_uuid]["Layout"].addWidget(self.rendered_items[item_uuid]["IssuesNumber"])
+
+            self.rendered_items[item_uuid]["CheckWidget"] = QWidget()
             if self.show_available_inventory:
                 self.rendered_items[item_uuid]["CheckWidgetButton"] = QPushButton("Check Out")
                 self.rendered_items[item_uuid]["CheckWidgetButton"].setStyleSheet(qss.item_checkout_button)
@@ -166,11 +192,12 @@ class MainWidget(QWidget):
             self.itemlistwidget.setStyleSheet(qss.item_list_unavailable)
         self.render_item_list()
 
-    def issues_filter(self, issues_filter_pressed: int):
+    def issues_filter(self, issues_filter_pressed: bool|None):
         self.show_issues = issues_filter_pressed
-        self.noissues_filter_button.setChecked(self.show_issues == 0)
-        self.issues_filter_button.setChecked(self.show_issues == 1)
-        self.all_filter_button.setChecked(self.show_issues == 2)
+        self.noissues_filter_button.setChecked(self.show_issues == False)
+        self.issues_filter_button.setChecked(self.show_issues == True)
+        self.all_filter_button.setChecked(self.show_issues is None)
+        self.render_item_list()
 
     def check_in(self, uuid:str):
         data_utils.modify_item_information(uuid, {"availability": "Available"})
@@ -186,6 +213,7 @@ class MainWidget(QWidget):
         self.rendered_items[uuid]["CheckWidgetNameField"].textChanged.connect(lambda: self.on_check_out_field_change(uuid, "Item"))
         self.rendered_items[uuid]["CheckWidgetNameField"].returnPressed.connect(lambda: self.complete_check_out(uuid))
         self.rendered_items[uuid]["CheckWidgetLayout"].addWidget(self.rendered_items[uuid]["CheckWidgetNameField"])
+        QTimer.singleShot(0, self.rendered_items[uuid]["CheckWidgetNameField"].setFocus)
 
         self.display_info(uuid)
 
@@ -213,8 +241,23 @@ class MainWidget(QWidget):
         self.render_item_list()
         self.display_info(uuid)
 
-    def display_info(self, uuid:str):
+    def display_info(self, uuid:str|None = None):
+        if uuid is None:
+            uuid = self.currently_viewed_uuid
+        else:
+            self.currently_viewed_uuid = uuid
+
+        if uuid == 0:
+            return #If no item has been selected for display
+
         item_info: dict = data_utils.get_item_information(uuid)
+        for issue in self.info_panel_issues:
+            try:
+                issue.deleteLater()
+            except RuntimeError:
+                continue
+            except AttributeError:
+                continue
         for section in self.info_panel_info.values():
             try:
                 section.deleteLater()
@@ -226,9 +269,32 @@ class MainWidget(QWidget):
         self.info_panel_info["name"].setStyleSheet(qss.no_qss)
         self.infopanellayout.insertWidget(0, self.info_panel_info["name"])
 
-        self.info_panel_info["description"] = QLabel(item_info["description"])
+        self.info_panel_info["description"] = QLabel(f"{item_info["description"]}\n\n")
         self.info_panel_info["description"].setStyleSheet(qss.no_qss)
+        self.info_panel_info["description"].setWordWrap(True)
         self.infopanellayout.insertWidget(1, self.info_panel_info["description"])
+
+        self.info_panel_info["issues"] = QWidget()
+        self.info_panel_info["issues_layout"] = QVBoxLayout()
+        if len(item_info["issues"]) == 0:
+            self.info_panel_info["issues"].setStyleSheet(qss.item_has_no_issues)
+            self.info_panel_issues = [{"NoIssuesMessage": QLabel("There are no reported issues on this item")}]
+            self.info_panel_issues[0]["NoIssuesMessage"].setStyleSheet(qss.basic_element)
+            self.info_panel_info["issues_layout"].addWidget(self.info_panel_issues[0]["NoIssuesMessage"])
+        else:
+            self.info_panel_info["issues"].setStyleSheet(qss.item_has_issues)
+            for issue in item_info["issues"]:
+                self.info_panel_issues.append({"IssueText": QLabel(issue)})
+                self.info_panel_issues[-1]["IssueText"].setStyleSheet(qss.basic_element)
+                self.info_panel_info["issues_layout"].addWidget(self.info_panel_issues[-1]["IssueText"])
+        self.info_panel_info["AddIssue"] = QLineEdit()
+        self.info_panel_info["AddIssue"].setStyleSheet(qss.basic_element)
+        self.info_panel_info["AddIssue"].setPlaceholderText("Enter new issue...")
+        self.info_panel_info["AddIssue"].returnPressed.connect((lambda: self.add_new_issue(uuid)))
+        self.info_panel_info["issues_layout"].addWidget(self.info_panel_info["AddIssue"])
+
+        self.info_panel_info["issues"].setLayout(self.info_panel_info["issues_layout"])
+        self.infopanellayout.insertWidget(2, self.info_panel_info["issues"])
 
         self.info_panel_info["LastUsedByText"] = f"Item last checked out by: <b>{item_info['lastusedby']}</b>."
         self.info_panel_info["lastusedby"] = QLabel(self.info_panel_info["LastUsedByText"])
@@ -249,6 +315,11 @@ class MainWidget(QWidget):
         self.info_panel_info["CheckWidgetLayout"].addWidget(self.info_panel_info["CheckWidgetButton"])
         self.info_panel_info["CheckWidget"].setLayout(self.info_panel_info["CheckWidgetLayout"])
         self.infopanellayout.addWidget(self.info_panel_info["CheckWidget"])
+
+    def add_new_issue(self, uuid:str):
+        issue: str = self.info_panel_info["AddIssue"].text()
+        data_utils.add_new_issue(uuid, issue)
+        self.render_item_list()
 
 app = QApplication(sys.argv)
 print("running...")

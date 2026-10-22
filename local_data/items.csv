@@ -1,4 +1,6 @@
 UUID,Status,Name,Description,LastUsedBy
 4e3d4cfc-1e45-42c3-8052-c3b356f12153,Available,Test,An item purely for testing,Tester
 c08e9b7e-fd60-417d-a7fe-d80346bd8614,Available,Test 2,A Secondary Item,Dave
+29d724f4-b20e-4a80-bc3f-e10cacfa200a,Available,Tramping Tent 1,A lightweight tent intended for 2 people (but can fit 3) - good for tramps, Zander
+c04d9178-06c8-4bbf-9a78-a67771d6cd84,Available,Tramping Tent 2,A lightweight tent intended for 2 people (but can fit 3) - good for tramps, Zander
 f7e360fe-5258-4a27-a1ec-5c07f8a13536,Unavailable,Another Test!?,"Woah, another one!",Zander
