@@ -128,6 +128,16 @@ item_label: str = f"""
     text-align: left;
 """
 
+item_has_issues: str = f"""
+    {basic_element}
+    background-color: #ffccaa;
+"""
+
+item_has_no_issues: str = f"""
+    {basic_element}
+    background-color: #aaffaa;
+"""
+
 item_checkout_button: str = f"""
     QPushButton {{
         {basic_element}
@@ -166,9 +176,4 @@ item_checkin_button: str = f"""
         margin: 0px;
         background-color: #5555ff;
     }}
-"""
-
-info_box_issues: str = f"""
-    {basic_element}
-    background-color: #ffccaa;
 """

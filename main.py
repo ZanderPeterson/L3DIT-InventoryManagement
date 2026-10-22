@@ -153,7 +153,10 @@ class MainWidget(QWidget):
 
             number_of_issues: int = len(data_utils.get_item_information(item_uuid)["issues"])
             self.rendered_items[item_uuid]["IssuesNumber"] = QLabel(f"{number_of_issues}")
-            self.rendered_items[item_uuid]["IssuesNumber"].setStyleSheet(qss.info_box_issues)
+            if number_of_issues >= 1:
+                self.rendered_items[item_uuid]["IssuesNumber"].setStyleSheet(qss.item_has_issues)
+            else:
+                self.rendered_items[item_uuid]["IssuesNumber"].setStyleSheet(qss.item_has_no_issues)
             self.rendered_items[item_uuid]["Layout"].addWidget(self.rendered_items[item_uuid]["IssuesNumber"])
 
             self.rendered_items[item_uuid]["CheckWidget"] = QWidget()
@@ -272,13 +275,14 @@ class MainWidget(QWidget):
         self.infopanellayout.insertWidget(1, self.info_panel_info["description"])
 
         self.info_panel_info["issues"] = QWidget()
-        self.info_panel_info["issues"].setStyleSheet(qss.info_box_issues)
         self.info_panel_info["issues_layout"] = QVBoxLayout()
         if len(item_info["issues"]) == 0:
+            self.info_panel_info["issues"].setStyleSheet(qss.item_has_no_issues)
             self.info_panel_issues = [{"NoIssuesMessage": QLabel("There are no reported issues on this item")}]
             self.info_panel_issues[0]["NoIssuesMessage"].setStyleSheet(qss.basic_element)
             self.info_panel_info["issues_layout"].addWidget(self.info_panel_issues[0]["NoIssuesMessage"])
         else:
+            self.info_panel_info["issues"].setStyleSheet(qss.item_has_issues)
             for issue in item_info["issues"]:
                 self.info_panel_issues.append({"IssueText": QLabel(issue)})
                 self.info_panel_issues[-1]["IssueText"].setStyleSheet(qss.basic_element)
