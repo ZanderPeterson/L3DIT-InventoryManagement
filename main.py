@@ -112,6 +112,7 @@ class MainWidget(QWidget):
         self.infopanellayout = QVBoxLayout()
         self.infopanelwidget.setLayout(self.infopanellayout)
         self.info_panel_info: dict[str, dict[QWidget]] = {}
+        self.info_panel_issues: list[dict[QWidget]] = []
         self.infopanellayout.addStretch()
         self.currently_viewed_uuid = 0
         left_side.addWidget(self.infopanelwidget)
@@ -242,6 +243,13 @@ class MainWidget(QWidget):
             return #If no item has been selected for display
 
         item_info: dict = data_utils.get_item_information(uuid)
+        for issue in self.info_panel_issues:
+            try:
+                issue.deleteLater()
+            except RuntimeError:
+                continue
+            except AttributeError:
+                continue
         for section in self.info_panel_info.values():
             try:
                 section.deleteLater()
@@ -257,6 +265,22 @@ class MainWidget(QWidget):
         self.info_panel_info["description"].setStyleSheet(qss.no_qss)
         self.info_panel_info["description"].setWordWrap(True)
         self.infopanellayout.insertWidget(1, self.info_panel_info["description"])
+
+        self.info_panel_info["issues"] = QWidget()
+        self.info_panel_info["issues"].setStyleSheet(qss.basic_element)
+        self.info_panel_info["issues_layout"] = QVBoxLayout()
+        if len(item_info["issues"]) == 0:
+            self.info_panel_issues = [{"NoIssuesMessage": QLabel("There are no reported issues on this item")}]
+            self.info_panel_issues[0]["NoIssuesMessage"].setStyleSheet(qss.basic_element)
+            self.info_panel_info["issues_layout"].addWidget(self.info_panel_issues[0]["NoIssuesMessage"])
+        else:
+            for issue in item_info["issues"]:
+                self.info_panel_issues.append({"IssueText": QLabel(issue)})
+                self.info_panel_issues[-1]["IssueText"].setStyleSheet(qss.basic_element)
+                self.info_panel_info["issues_layout"].addWidget(self.info_panel_issues[-1]["IssueText"])
+
+        self.info_panel_info["issues"].setLayout(self.info_panel_info["issues_layout"])
+        self.infopanellayout.insertWidget(2, self.info_panel_info["issues"])
 
         self.info_panel_info["LastUsedByText"] = f"Item last checked out by: <b>{item_info['lastusedby']}</b>."
         self.info_panel_info["lastusedby"] = QLabel(self.info_panel_info["LastUsedByText"])
