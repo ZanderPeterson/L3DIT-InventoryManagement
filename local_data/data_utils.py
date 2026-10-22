@@ -37,7 +37,7 @@ def get_items(available_filter: bool|None = None, issues_filter: bool|None = Non
     e.g.
     """
     list_of_UUIDs: list[str] = []
-    with open(item_csv, mode="r", newline="") as csv_file:
+    with (open(item_csv, mode="r", newline="") as csv_file):
         read_file = list(csv.reader(csv_file))
         read_file.pop(0)
         if not search is None:
@@ -54,12 +54,14 @@ def get_items(available_filter: bool|None = None, issues_filter: bool|None = Non
                 meets_availability_filter = ((available_filter == True and item_information["is_available"] == "Available") or
                                              (available_filter == False and item_information["is_available"] == "Unavailable"))
             if not issues_filter is None:
-                meets_search_filter = ((issues_filter == True and len(item_information["issues"]) >= 1) or
+                meets_issues_filter = ((issues_filter == True and len(item_information["issues"]) >= 1) or
                                        (issues_filter == False and len(item_information["issues"]) == 0))
             if not search is None:
                 to_search: str = item_information["name"]+item_information["description"]
                 meets_search_filter = search in (to_search).replace(" ", "").lower()
-            if not meets_availability_filter == False and not meets_search_filter == False:
+            if ((not meets_availability_filter == False) and
+                (not meets_issues_filter == False) and
+                (not meets_search_filter == False)):
                 list_of_UUIDs.append(item[0])
     return list_of_UUIDs
 
