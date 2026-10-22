@@ -261,13 +261,13 @@ class MainWidget(QWidget):
         self.info_panel_info["name"].setStyleSheet(qss.no_qss)
         self.infopanellayout.insertWidget(0, self.info_panel_info["name"])
 
-        self.info_panel_info["description"] = QLabel(item_info["description"])
+        self.info_panel_info["description"] = QLabel(f"{item_info["description"]}\n\n")
         self.info_panel_info["description"].setStyleSheet(qss.no_qss)
         self.info_panel_info["description"].setWordWrap(True)
         self.infopanellayout.insertWidget(1, self.info_panel_info["description"])
 
         self.info_panel_info["issues"] = QWidget()
-        self.info_panel_info["issues"].setStyleSheet(qss.basic_element)
+        self.info_panel_info["issues"].setStyleSheet(qss.info_box_issues)
         self.info_panel_info["issues_layout"] = QVBoxLayout()
         if len(item_info["issues"]) == 0:
             self.info_panel_issues = [{"NoIssuesMessage": QLabel("There are no reported issues on this item")}]

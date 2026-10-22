@@ -79,7 +79,7 @@ noissues_button_style: str = f"""
 issues_button_style: str = f"""
     QPushButton {{
         {basic_element}
-        background-color: #ffffaa;
+        background-color: #ffccaa;
     }}
     QPushButton:hover {{
         {basic_button_hover}
@@ -87,7 +87,7 @@ issues_button_style: str = f"""
     }}
     QPushButton:checked {{
         {basic_button_pressed}
-        background-color: #ffff55;
+        background-color: #ffaa55;
     }}
 """
 
@@ -166,4 +166,9 @@ item_checkin_button: str = f"""
         margin: 0px;
         background-color: #5555ff;
     }}
+"""
+
+info_box_issues: str = f"""
+    {basic_element}
+    background-color: #ffccaa;
 """
