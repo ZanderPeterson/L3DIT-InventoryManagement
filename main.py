@@ -152,7 +152,8 @@ class MainWidget(QWidget):
             self.rendered_items[item_uuid]["Layout"].addWidget(self.rendered_items[item_uuid]["ButtonLabel"], stretch=2)
 
             number_of_issues: int = len(data_utils.get_item_information(item_uuid)["issues"])
-            self.rendered_items[item_uuid]["IssuesNumber"] = QLabel(f"{number_of_issues}")
+            issues_message: str = f"Issues: <b>{number_of_issues}</b>"
+            self.rendered_items[item_uuid]["IssuesNumber"] = QLabel(issues_message)
             if number_of_issues >= 1:
                 self.rendered_items[item_uuid]["IssuesNumber"].setStyleSheet(qss.item_has_issues)
             else:
