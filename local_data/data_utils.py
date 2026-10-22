@@ -120,6 +120,11 @@ def modify_item_information(uuid:str, modifications: dict[str, str]):
     with open(item_csv, mode="w", newline="") as csv_file:
         csv.writer(csv_file).writerows(read_file)
 
+def add_new_issue(uuid:str, issue:str):
+    with open(issues_csv, mode="a", newline="") as csv_file:
+        writer = csv.writer(csv_file)
+        writer.writerow([uuid, issue])
+
 if __name__ == "__main__":
     print("Warning: File is intended to be used for utilities rather than run directly.")
     print("main.py is the intended file for this code to be ran from.")

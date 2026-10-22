@@ -287,6 +287,11 @@ class MainWidget(QWidget):
                 self.info_panel_issues.append({"IssueText": QLabel(issue)})
                 self.info_panel_issues[-1]["IssueText"].setStyleSheet(qss.basic_element)
                 self.info_panel_info["issues_layout"].addWidget(self.info_panel_issues[-1]["IssueText"])
+        self.info_panel_info["AddIssue"] = QLineEdit()
+        self.info_panel_info["AddIssue"].setStyleSheet(qss.basic_element)
+        self.info_panel_info["AddIssue"].setPlaceholderText("Enter new issue...")
+        self.info_panel_info["AddIssue"].returnPressed.connect((lambda: self.add_new_issue(uuid)))
+        self.info_panel_info["issues_layout"].addWidget(self.info_panel_info["AddIssue"])
 
         self.info_panel_info["issues"].setLayout(self.info_panel_info["issues_layout"])
         self.infopanellayout.insertWidget(2, self.info_panel_info["issues"])
@@ -310,6 +315,11 @@ class MainWidget(QWidget):
         self.info_panel_info["CheckWidgetLayout"].addWidget(self.info_panel_info["CheckWidgetButton"])
         self.info_panel_info["CheckWidget"].setLayout(self.info_panel_info["CheckWidgetLayout"])
         self.infopanellayout.addWidget(self.info_panel_info["CheckWidget"])
+
+    def add_new_issue(self, uuid:str):
+        issue: str = self.info_panel_info["AddIssue"].text()
+        data_utils.add_new_issue(uuid, issue)
+        self.render_item_list()
 
 app = QApplication(sys.argv)
 print("running...")
