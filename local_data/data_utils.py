@@ -122,10 +122,22 @@ def modify_item_information(uuid:str, modifications: dict[str, str]):
     with open(item_csv, mode="w", newline="") as csv_file:
         csv.writer(csv_file).writerows(read_file)
 
-def add_new_issue(uuid:str, issue:str):
+def add_new_issue(uuid:str, issue:str) -> None:
     with open(issues_csv, mode="a", newline="") as csv_file:
         writer = csv.writer(csv_file)
         writer.writerow([uuid, issue])
+
+def remove_issue(uuid:str, issue:str) -> None:
+    with open(issues_csv, mode="r", newline="") as csv_file:
+        read_file = list(csv.reader(csv_file))
+        new_file = []
+        for row in read_file:
+            if row[0] == uuid and row[1] == issue:
+                break
+            else:
+                new_file.append(row)
+    with open(issues_csv, mode="w", newline="") as csv_file:
+        csv.writer(csv_file).writerows(new_file)
 
 if __name__ == "__main__":
     print("Warning: File is intended to be used for utilities rather than run directly.")

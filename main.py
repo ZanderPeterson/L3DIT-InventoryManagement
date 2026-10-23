@@ -286,9 +286,23 @@ class MainWidget(QWidget):
         else:
             self.info_panel_info["issues"].setStyleSheet(qss.item_has_issues)
             for issue in item_info["issues"]:
-                self.info_panel_issues.append({"IssueText": QLabel(issue)})
-                self.info_panel_issues[-1]["IssueText"].setStyleSheet(qss.basic_element)
-                self.info_panel_info["issues_layout"].addWidget(self.info_panel_issues[-1]["IssueText"])
+                self.info_panel_issues.append({"QWidget": QWidget(),
+                                               "Layout": QHBoxLayout(),
+                                               "IssueText": QLabel(issue),
+                                               "DeleteButton": QPushButton("Mark Resolved")})
+                self.info_panel_issues[-1]["Layout"].setContentsMargins(0, 0, 0, 0)
+                self.info_panel_issues[-1]["QWidget"].setStyleSheet(qss.basic_element)
+
+                self.info_panel_issues[-1]["IssueText"].setStyleSheet(qss.item_label)
+                self.info_panel_issues[-1]["Layout"].addWidget(self.info_panel_issues[-1]["IssueText"], stretch=2)
+
+                self.info_panel_issues[-1]["DeleteButton"].setStyleSheet(qss.noissues_button_style)
+                self.info_panel_issues[-1]["DeleteButton"].clicked.connect(lambda: self.delete_issue(uuid, issue))
+                self.info_panel_issues[-1]["Layout"].addWidget(self.info_panel_issues[-1]["DeleteButton"], stretch=1)
+
+                self.info_panel_issues[-1]["QWidget"].setLayout(self.info_panel_issues[-1]["Layout"])
+                self.info_panel_info["issues_layout"].addWidget(self.info_panel_issues[-1]["QWidget"])
+
         self.info_panel_info["AddIssue"] = QLineEdit()
         self.info_panel_info["AddIssue"].setStyleSheet(qss.basic_element)
         self.info_panel_info["AddIssue"].setPlaceholderText("Enter new issue...")
@@ -321,6 +335,10 @@ class MainWidget(QWidget):
     def add_new_issue(self, uuid:str):
         issue: str = self.info_panel_info["AddIssue"].text()
         data_utils.add_new_issue(uuid, issue)
+        self.render_item_list()
+
+    def delete_issue(self, uuid:str, issue:str):
+        data_utils.remove_issue(uuid, issue)
         self.render_item_list()
 
 app = QApplication(sys.argv)
