@@ -103,6 +103,11 @@ class MainWidget(QWidget):
         self.no_items_popup.setVisible(False)
         self.itemlistlayout.addWidget(self.no_items_popup)
         self.itemlistlayout.addStretch()
+        self.add_item = QLineEdit()
+        self.add_item.setStyleSheet(qss.basic_element)
+        self.add_item.setPlaceholderText("Enter new item...")
+        self.add_item.returnPressed.connect((lambda: self.add_new_item()))
+        self.itemlistlayout.addWidget(self.add_item)
         right_side.addWidget(self.itemlistwidget)
 
         #Display the Info Panel
@@ -177,7 +182,7 @@ class MainWidget(QWidget):
 
             self.rendered_items[item_uuid]["Layout"].addWidget(self.rendered_items[item_uuid]["CheckWidget"], stretch=1)
             self.rendered_items[item_uuid]["QWidget"].setLayout(self.rendered_items[item_uuid]["Layout"])
-            insert_widget_location = max(0, self.itemlistlayout.count()-1) #Ensures widget is before stretch
+            insert_widget_location = max(0, self.itemlistlayout.count()-2) #Ensures widget is before stretch
             self.itemlistlayout.insertWidget(insert_widget_location, self.rendered_items[item_uuid]["QWidget"])
 
     def available_inventory_filter(self, available_inventory_button_pressed: bool):
@@ -331,6 +336,11 @@ class MainWidget(QWidget):
         self.info_panel_info["CheckWidgetLayout"].addWidget(self.info_panel_info["CheckWidgetButton"])
         self.info_panel_info["CheckWidget"].setLayout(self.info_panel_info["CheckWidgetLayout"])
         self.infopanellayout.addWidget(self.info_panel_info["CheckWidget"])
+
+    def add_new_item(self):
+        name: str = self.add_item.text()
+        data_utils.add_new_item(name)
+        self.render_item_list()
 
     def add_new_issue(self, uuid:str):
         issue: str = self.info_panel_info["AddIssue"].text()
