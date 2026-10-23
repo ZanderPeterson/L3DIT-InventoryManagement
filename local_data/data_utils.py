@@ -2,6 +2,7 @@
 
 #Stardard Libraries
 import csv
+from datetime import datetime
 import uuid
 
 #Third-Party Libraries
@@ -11,6 +12,7 @@ import uuid
 #File Names
 item_csv: str = "local_data/items.csv"
 issues_csv: str = "local_data/issues.csv"
+log_csv: str = "local_data/log.csv"
 
 def add_uuids_to_items():
     """
@@ -28,6 +30,36 @@ def add_uuids_to_items():
     with open(item_csv, mode="w", newline="") as csv_file:
         csv.writer(csv_file).writerows(read_file) #Writes file w/changes.
 
+def add_to_log(uuid:str, change:str):
+    """Adds specified information to the log file"""
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    with open(log_csv, mode="a", newline="") as csv_file:
+        writer = csv.writer(csv_file)
+        writer.writerow([uuid, timestamp, change])
+
+def generate_log_file(uuid:str, directory:str):
+    """
+    Generates a .txt file which shows the full history of the item.
+    The directory variable refers to the location the file should be generated.
+    """
+    item_info: dict[str, str] = get_item_information(uuid)
+    file_name: str = f"{directory}/{item_info["name"]} Log.txt"
+    add_to_log(uuid, f"Generated Log File: {file_name}")
+
+    with open(log_csv, mode="r", newline="") as csv_file:
+        read_file = list(csv.reader(csv_file))
+
+    info_to_write: list[str] = []
+    for entry in read_file:
+        if entry[0] != uuid:
+            continue
+        info_to_write.append(f"[{entry[1]}]: {entry[2]}\n")
+
+    with open(file_name, mode="w", encoding="utf-8") as log_file:
+        log_file.write(f"This is the log file for {item_info["name"]}\n")
+        log_file.write(f"This file was generated on: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}\n\n")
+        log_file.writelines(info_to_write)
+
 def get_items(available_filter: bool|None = None, issues_filter: bool|None = None,
               search: str|None = None) -> list[str]:
     """
@@ -37,7 +69,7 @@ def get_items(available_filter: bool|None = None, issues_filter: bool|None = Non
     e.g.
     """
     list_of_UUIDs: list[str] = []
-    with open(item_csv, mode="r", newline="") as csv_file:
+    with (open(item_csv, mode="r", newline="") as csv_file):
         read_file = list(csv.reader(csv_file))
         read_file.pop(0)
         if not search is None:
@@ -54,12 +86,14 @@ def get_items(available_filter: bool|None = None, issues_filter: bool|None = Non
                 meets_availability_filter = ((available_filter == True and item_information["is_available"] == "Available") or
                                              (available_filter == False and item_information["is_available"] == "Unavailable"))
             if not issues_filter is None:
-                meets_search_filter = ((issues_filter == True and len(item_information["issues"]) >= 1) or
+                meets_issues_filter = ((issues_filter == True and len(item_information["issues"]) >= 1) or
                                        (issues_filter == False and len(item_information["issues"]) == 0))
             if not search is None:
                 to_search: str = item_information["name"]+item_information["description"]
                 meets_search_filter = search in (to_search).replace(" ", "").lower()
-            if not meets_availability_filter == False and not meets_search_filter == False:
+            if ((not meets_availability_filter == False) and
+                (not meets_issues_filter == False) and
+                (not meets_search_filter == False)):
                 list_of_UUIDs.append(item[0])
     return list_of_UUIDs
 
@@ -99,16 +133,21 @@ def modify_item_information(uuid:str, modifications: dict[str, str]):
             if row[0] == uuid:
                 try:
                     row[1] = modifications["availability"]
+                    if modifications["availability"] == "Available":
+                        add_to_log(uuid, f"Item Checked In")
+                    if modifications["availability"] == "Unavailable":
+                        add_to_log(uuid, f"Item Checked Out by: {modifications["lastusedby"]}")
                 except KeyError:
                     pass
-
                 try:
                     row[2] = modifications["name"]
                 except KeyError:
                     pass
 
                 try:
-                    row[3] = modifications["description"]
+                    if row[3] != modifications["description"]:
+                        add_to_log(uuid, f"Updated Description To: {modifications["description"]}")
+                        row[3] = modifications["description"]
                 except KeyError:
                     pass
 
@@ -120,10 +159,44 @@ def modify_item_information(uuid:str, modifications: dict[str, str]):
     with open(item_csv, mode="w", newline="") as csv_file:
         csv.writer(csv_file).writerows(read_file)
 
-def add_new_issue(uuid:str, issue:str):
+def add_new_item(item_name:str) -> None:
+    new_uuid: str = str(uuid.uuid4())
+    add_to_log(new_uuid, f"Added Item: {item_name}")
+    with open(item_csv, mode="a", newline="") as csv_file:
+        writer = csv.writer(csv_file)
+        writer.writerow([new_uuid, "Available", item_name, "", "Never Checked Out"])
+
+def delete_item(uuid:str) -> None:
+    add_to_log(uuid, "Deleted Item")
+    with open(item_csv, mode="r", newline="") as csv_file:
+        read_file = list(csv.reader(csv_file))
+        new_file = []
+        for row in read_file:
+            if row[0] == uuid:
+                break
+            else:
+                new_file.append(row)
+    with open(item_csv, mode="w", newline="") as csv_file:
+        csv.writer(csv_file).writerows(new_file)
+
+def add_new_issue(uuid:str, issue:str) -> None:
+    add_to_log(uuid, f"Added issue: {issue}")
     with open(issues_csv, mode="a", newline="") as csv_file:
         writer = csv.writer(csv_file)
         writer.writerow([uuid, issue])
+
+def remove_issue(uuid:str, issue:str) -> None:
+    add_to_log(uuid, f"Removed issue: {issue}")
+    with open(issues_csv, mode="r", newline="") as csv_file:
+        read_file = list(csv.reader(csv_file))
+        new_file = []
+        for row in read_file:
+            if row[0] == uuid and row[1] == issue:
+                break
+            else:
+                new_file.append(row)
+    with open(issues_csv, mode="w", newline="") as csv_file:
+        csv.writer(csv_file).writerows(new_file)
 
 if __name__ == "__main__":
     print("Warning: File is intended to be used for utilities rather than run directly.")

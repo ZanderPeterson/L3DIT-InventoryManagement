@@ -6,7 +6,7 @@ import sys #Required for opening a window
 #Third-Party Libraries
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (QApplication, QLabel, QLineEdit, QPushButton,
-                               QHBoxLayout, QVBoxLayout, QWidget, QSizePolicy) #The library utilised for the GUI
+                               QHBoxLayout, QVBoxLayout, QWidget, QSizePolicy, QPlainTextEdit)
 from PySide6.QtCore import QTimer
 
 #Local Libraries
@@ -103,6 +103,11 @@ class MainWidget(QWidget):
         self.no_items_popup.setVisible(False)
         self.itemlistlayout.addWidget(self.no_items_popup)
         self.itemlistlayout.addStretch()
+        self.add_item = QLineEdit()
+        self.add_item.setStyleSheet(qss.basic_element)
+        self.add_item.setPlaceholderText("Enter new item...")
+        self.add_item.returnPressed.connect((lambda: self.add_new_item()))
+        self.itemlistlayout.addWidget(self.add_item)
         right_side.addWidget(self.itemlistwidget)
 
         #Display the Info Panel
@@ -113,8 +118,9 @@ class MainWidget(QWidget):
         self.infopanelwidget.setLayout(self.infopanellayout)
         self.info_panel_info: dict[str, dict[QWidget]] = {}
         self.info_panel_issues: list[dict[QWidget]] = []
+        self.info_panel_description: str = ""
         self.infopanellayout.addStretch()
-        self.currently_viewed_uuid = 0
+        self.currently_viewed_uuid: str | None = None
         left_side.addWidget(self.infopanelwidget)
 
         #Adds both of the sides to the overall layout
@@ -152,7 +158,9 @@ class MainWidget(QWidget):
             self.rendered_items[item_uuid]["Layout"].addWidget(self.rendered_items[item_uuid]["ButtonLabel"], stretch=2)
 
             number_of_issues: int = len(data_utils.get_item_information(item_uuid)["issues"])
-            self.rendered_items[item_uuid]["IssuesNumber"] = QLabel(f"{number_of_issues}")
+            issues_message: str = f"Issues: {number_of_issues}"
+            self.rendered_items[item_uuid]["IssuesNumber"] = QPushButton(issues_message)
+            self.rendered_items[item_uuid]["IssuesNumber"].clicked.connect(lambda _, uuid=item_uuid: self.display_info(uuid))
             if number_of_issues >= 1:
                 self.rendered_items[item_uuid]["IssuesNumber"].setStyleSheet(qss.item_has_issues)
             else:
@@ -175,7 +183,7 @@ class MainWidget(QWidget):
 
             self.rendered_items[item_uuid]["Layout"].addWidget(self.rendered_items[item_uuid]["CheckWidget"], stretch=1)
             self.rendered_items[item_uuid]["QWidget"].setLayout(self.rendered_items[item_uuid]["Layout"])
-            insert_widget_location = max(0, self.itemlistlayout.count()-1) #Ensures widget is before stretch
+            insert_widget_location = max(0, self.itemlistlayout.count()-2) #Ensures widget is before stretch
             self.itemlistlayout.insertWidget(insert_widget_location, self.rendered_items[item_uuid]["QWidget"])
 
     def available_inventory_filter(self, available_inventory_button_pressed: bool):
@@ -242,13 +250,14 @@ class MainWidget(QWidget):
         self.display_info(uuid)
 
     def display_info(self, uuid:str|None = None):
+        if not self.currently_viewed_uuid is None:
+            self.update_item_description(self.currently_viewed_uuid, True)
+
         if uuid is None:
             uuid = self.currently_viewed_uuid
         else:
-            self.currently_viewed_uuid = uuid
 
-        if uuid == 0:
-            return #If no item has been selected for display
+            self.currently_viewed_uuid = uuid
 
         item_info: dict = data_utils.get_item_information(uuid)
         for issue in self.info_panel_issues:
@@ -265,13 +274,20 @@ class MainWidget(QWidget):
                 continue
             except AttributeError:
                 continue
+
+        if uuid is None:
+            return #If no item has been selected for display
+
         self.info_panel_info["name"] = QLabel(f"<h1>{item_info["name"]}</h1>")
         self.info_panel_info["name"].setStyleSheet(qss.no_qss)
         self.infopanellayout.insertWidget(0, self.info_panel_info["name"])
 
-        self.info_panel_info["description"] = QLabel(f"{item_info["description"]}\n\n")
+        self.info_panel_info["description"] = QPlainTextEdit()
         self.info_panel_info["description"].setStyleSheet(qss.no_qss)
-        self.info_panel_info["description"].setWordWrap(True)
+        self.info_panel_info["description"].setPlaceholderText("Add a description...")
+        self.info_panel_info["description"].setPlainText(item_info["description"])
+        self.info_panel_info["description"].textChanged.connect(lambda: self.update_item_description(uuid, False))
+        self.update_item_description(uuid, False)
         self.infopanellayout.insertWidget(1, self.info_panel_info["description"])
 
         self.info_panel_info["issues"] = QWidget()
@@ -284,9 +300,23 @@ class MainWidget(QWidget):
         else:
             self.info_panel_info["issues"].setStyleSheet(qss.item_has_issues)
             for issue in item_info["issues"]:
-                self.info_panel_issues.append({"IssueText": QLabel(issue)})
-                self.info_panel_issues[-1]["IssueText"].setStyleSheet(qss.basic_element)
-                self.info_panel_info["issues_layout"].addWidget(self.info_panel_issues[-1]["IssueText"])
+                self.info_panel_issues.append({"QWidget": QWidget(),
+                                               "Layout": QHBoxLayout(),
+                                               "IssueText": QLabel(issue),
+                                               "DeleteButton": QPushButton("Mark Resolved")})
+                self.info_panel_issues[-1]["Layout"].setContentsMargins(0, 0, 0, 0)
+                self.info_panel_issues[-1]["QWidget"].setStyleSheet(qss.basic_element)
+
+                self.info_panel_issues[-1]["IssueText"].setStyleSheet(qss.item_label)
+                self.info_panel_issues[-1]["Layout"].addWidget(self.info_panel_issues[-1]["IssueText"], stretch=2)
+
+                self.info_panel_issues[-1]["DeleteButton"].setStyleSheet(qss.noissues_button_style)
+                self.info_panel_issues[-1]["DeleteButton"].clicked.connect(lambda: self.delete_issue(uuid, issue))
+                self.info_panel_issues[-1]["Layout"].addWidget(self.info_panel_issues[-1]["DeleteButton"], stretch=1)
+
+                self.info_panel_issues[-1]["QWidget"].setLayout(self.info_panel_issues[-1]["Layout"])
+                self.info_panel_info["issues_layout"].addWidget(self.info_panel_issues[-1]["QWidget"])
+
         self.info_panel_info["AddIssue"] = QLineEdit()
         self.info_panel_info["AddIssue"].setStyleSheet(qss.basic_element)
         self.info_panel_info["AddIssue"].setPlaceholderText("Enter new issue...")
@@ -316,9 +346,41 @@ class MainWidget(QWidget):
         self.info_panel_info["CheckWidget"].setLayout(self.info_panel_info["CheckWidgetLayout"])
         self.infopanellayout.addWidget(self.info_panel_info["CheckWidget"])
 
+        self.info_panel_info["BottomRow"] = QHBoxLayout()
+        self.info_panel_info["DeleteItem"] = QPushButton("Delete Item")
+        self.info_panel_info["DeleteItem"].setStyleSheet(qss.inventory_unavailable_button_style)
+        self.info_panel_info["DeleteItem"].clicked.connect(lambda _: self.delete_item(uuid))
+        self.info_panel_info["BottomRow"].addWidget(self.info_panel_info["DeleteItem"])
+
+        self.info_panel_info["GenerateLog"] = QPushButton("Generate Log")
+        self.info_panel_info["GenerateLog"].setStyleSheet(qss.inventory_available_button_style)
+        self.info_panel_info["GenerateLog"].clicked.connect(lambda _: data_utils.generate_log_file(uuid, "generated_logs"))
+        self.info_panel_info["BottomRow"].addWidget(self.info_panel_info["GenerateLog"])
+        self.infopanellayout.addLayout(self.info_panel_info["BottomRow"])
+
+    def add_new_item(self):
+        name: str = self.add_item.text()
+        data_utils.add_new_item(name)
+        self.render_item_list()
+
+    def update_item_description(self, uuid:str, commit:bool) -> None:
+        if not commit:
+            self.info_panel_description = self.info_panel_info["description"].toPlainText()
+            return
+        data_utils.modify_item_information(uuid, {"description": self.info_panel_description})
+
+    def delete_item(self, uuid:str) -> None:
+        data_utils.delete_item(uuid)
+        self.currently_viewed_uuid = None
+        self.render_item_list()
+
     def add_new_issue(self, uuid:str):
         issue: str = self.info_panel_info["AddIssue"].text()
         data_utils.add_new_issue(uuid, issue)
+        self.render_item_list()
+
+    def delete_issue(self, uuid:str, issue:str):
+        data_utils.remove_issue(uuid, issue)
         self.render_item_list()
 
 app = QApplication(sys.argv)
