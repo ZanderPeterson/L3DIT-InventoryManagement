@@ -37,6 +37,29 @@ def add_to_log(uuid:str, change:str):
         writer = csv.writer(csv_file)
         writer.writerow([uuid, timestamp, change])
 
+def generate_log_file(uuid:str, directory:str):
+    """
+    Generates a .txt file which shows the full history of the item.
+    The directory variable refers to the location the file should be generated.
+    """
+    item_info: dict[str, str] = get_item_information(uuid)
+    file_name: str = f"{directory}/{item_info["name"]} Log.txt"
+    add_to_log(uuid, f"Generated Log File: {file_name}")
+
+    with open(log_csv, mode="r", newline="") as csv_file:
+        read_file = list(csv.reader(csv_file))
+
+    info_to_write: list[str] = []
+    for entry in read_file:
+        if entry[0] != uuid:
+            continue
+        info_to_write.append(f"[{entry[1]}]: {entry[2]}\n")
+
+    with open(file_name, mode="w", encoding="utf-8") as log_file:
+        log_file.write(f"This is the log file for {item_info["name"]}\n")
+        log_file.write(f"This file was generated on: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}\n\n")
+        log_file.writelines(info_to_write)
+
 def get_items(available_filter: bool|None = None, issues_filter: bool|None = None,
               search: str|None = None) -> list[str]:
     """

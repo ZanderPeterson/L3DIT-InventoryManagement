@@ -346,10 +346,17 @@ class MainWidget(QWidget):
         self.info_panel_info["CheckWidget"].setLayout(self.info_panel_info["CheckWidgetLayout"])
         self.infopanellayout.addWidget(self.info_panel_info["CheckWidget"])
 
+        self.info_panel_info["BottomRow"] = QHBoxLayout()
         self.info_panel_info["DeleteItem"] = QPushButton("Delete Item")
         self.info_panel_info["DeleteItem"].setStyleSheet(qss.inventory_unavailable_button_style)
         self.info_panel_info["DeleteItem"].clicked.connect(lambda _: self.delete_item(uuid))
-        self.infopanellayout.addWidget(self.info_panel_info["DeleteItem"])
+        self.info_panel_info["BottomRow"].addWidget(self.info_panel_info["DeleteItem"])
+
+        self.info_panel_info["GenerateLog"] = QPushButton("Generate Log")
+        self.info_panel_info["GenerateLog"].setStyleSheet(qss.inventory_available_button_style)
+        self.info_panel_info["GenerateLog"].clicked.connect(lambda _: data_utils.generate_log_file(uuid, "generated_logs"))
+        self.info_panel_info["BottomRow"].addWidget(self.info_panel_info["GenerateLog"])
+        self.infopanellayout.addLayout(self.info_panel_info["BottomRow"])
 
     def add_new_item(self):
         name: str = self.add_item.text()
