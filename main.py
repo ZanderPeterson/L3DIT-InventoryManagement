@@ -22,14 +22,14 @@ class MainWidget(QWidget):
         data_utils.add_uuids_to_items() #If any new items are added, adds UUIDs to them
 
         #Layouts
-        main_columns = QHBoxLayout()
-        left_side = QVBoxLayout()
-        right_side = QVBoxLayout()
+        self.main_columns = QHBoxLayout()
+        self.left_side = QVBoxLayout()
+        self.right_side = QVBoxLayout()
 
         #Set up title
-        title_label = QLabel("<h1>Inventory Management</h1>") #Creates a heading for the output section
-        title_label.setStyleSheet(qss.basic_element)
-        left_side.addWidget(title_label, alignment=Qt.AlignCenter)
+        self.title_label = QLabel("<h1>Inventory Management</h1>") #Creates a heading for the output section
+        self.title_label.setStyleSheet(qss.basic_element)
+        self.left_side.addWidget(self.title_label, alignment=Qt.AlignCenter)
 
         #Set up Search & Filtering
         self.search_layout = QHBoxLayout()
@@ -45,55 +45,55 @@ class MainWidget(QWidget):
         #search bar is updated.
         self.search_bar.textChanged.connect(lambda _: self.render_item_list())
         self.search_layout.addWidget(self.search_bar)
-        right_side.addLayout(self.search_layout)
+        self.right_side.addLayout(self.search_layout)
 
         #Set up the inventory available/unavailable buttons
-        available_inventory_filter_layout = QHBoxLayout()
-        available_inventory_filter_label = QLabel("Sort By:")
-        available_inventory_filter_label.setStyleSheet(qss.basic_element)
-        available_inventory_filter_layout.addWidget(available_inventory_filter_label, stretch=2)
+        self.available_inventory_filter_layout = QHBoxLayout()
+        self.available_inventory_filter_label = QLabel("Sort By:")
+        self.available_inventory_filter_label.setStyleSheet(qss.basic_element)
+        self.available_inventory_filter_layout.addWidget(self.available_inventory_filter_label, stretch=2)
         self.show_available_inventory: bool = True #True = available inventory, False = unavailable inventory.
 
         self.available_inventory_button = QPushButton("Inventory Available")
         self.available_inventory_button.setStyleSheet(qss.inventory_available_button_style)
         self.available_inventory_button.clicked.connect(lambda: self.available_inventory_filter(True))
         self.available_inventory_button.setCheckable(True)
-        available_inventory_filter_layout.addWidget(self.available_inventory_button, stretch=3)
+        self.available_inventory_filter_layout.addWidget(self.available_inventory_button, stretch=3)
 
         self.unavailable_inventory_button = QPushButton("Inventory Unavailable")
         self.unavailable_inventory_button.setStyleSheet(qss.inventory_unavailable_button_style)
         self.unavailable_inventory_button.clicked.connect(lambda: self.available_inventory_filter(False))
         self.unavailable_inventory_button.setCheckable(True)
-        available_inventory_filter_layout.addWidget(self.unavailable_inventory_button, stretch=3)
+        self.available_inventory_filter_layout.addWidget(self.unavailable_inventory_button, stretch=3)
 
-        right_side.addLayout(available_inventory_filter_layout)
+        self.right_side.addLayout(self.available_inventory_filter_layout)
 
         #Set up the issue filter buttons
-        issue_filter_layout = QHBoxLayout()
-        issue_filter_label = QLabel("Sort By:")
-        issue_filter_label.setStyleSheet(qss.basic_element)
-        issue_filter_layout.addWidget(issue_filter_label, stretch=1)
+        self.issue_filter_layout = QHBoxLayout()
+        self.issue_filter_label = QLabel("Sort By:")
+        self.issue_filter_label.setStyleSheet(qss.basic_element)
+        self.issue_filter_layout.addWidget(self.issue_filter_label, stretch=1)
         self.show_issues: bool|None = False #False = NoIssues, True = Issues, None = Show All
 
         self.noissues_filter_button = QPushButton("No Issues")
         self.noissues_filter_button.setStyleSheet(qss.noissues_button_style)
         self.noissues_filter_button.setCheckable(True)
         self.noissues_filter_button.clicked.connect(lambda: self.issues_filter(False))
-        issue_filter_layout.addWidget(self.noissues_filter_button, stretch=1)
+        self.issue_filter_layout.addWidget(self.noissues_filter_button, stretch=1)
 
         self.issues_filter_button = QPushButton("Issues")
         self.issues_filter_button.setStyleSheet(qss.issues_button_style)
         self.issues_filter_button.setCheckable(True)
         self.issues_filter_button.clicked.connect(lambda: self.issues_filter(True))
-        issue_filter_layout.addWidget(self.issues_filter_button, stretch=1)
+        self.issue_filter_layout.addWidget(self.issues_filter_button, stretch=1)
 
         self.all_filter_button = QPushButton("All")
         self.all_filter_button.setStyleSheet(qss.all_button_style)
         self.all_filter_button.setCheckable(True)
         self.all_filter_button.clicked.connect(lambda: self.issues_filter(None))
-        issue_filter_layout.addWidget(self.all_filter_button, stretch=1)
+        self.issue_filter_layout.addWidget(self.all_filter_button, stretch=1)
 
-        right_side.addLayout(issue_filter_layout)
+        self.right_side.addLayout(self.issue_filter_layout)
 
         #Display List o' Items
         self.item_list_widget = QWidget()
@@ -111,7 +111,7 @@ class MainWidget(QWidget):
         self.add_item.setPlaceholderText("Enter new item...")
         self.add_item.returnPressed.connect((lambda: self.add_new_item()))
         self.item_list_layout.addWidget(self.add_item)
-        right_side.addWidget(self.item_list_widget)
+        self.right_side.addWidget(self.item_list_widget)
 
         #Display the Info Panel
         self.info_panel_widget = QWidget()
@@ -124,18 +124,18 @@ class MainWidget(QWidget):
         self.info_panel_description: str = ""
         self.info_panel_layout.addStretch()
         self.currently_viewed_uuid: str | None = None
-        left_side.addWidget(self.info_panel_widget)
+        self.left_side.addWidget(self.info_panel_widget)
 
         #Adds both of the sides to the overall layout
         #The stretch encourages both sides to have the same width.
-        main_columns.addLayout(left_side, stretch=1)
-        main_columns.addLayout(right_side, stretch=1)
+        self.main_columns.addLayout(self.left_side, stretch=1)
+        self.main_columns.addLayout(self.right_side, stretch=1)
 
         #Sets the default states of buttons
         self.available_inventory_filter(self.show_available_inventory)
         self.issues_filter(self.show_issues) #Ensures one option is selected initially
 
-        self.setLayout(main_columns) #Displays layout
+        self.setLayout(self.main_columns) #Displays layout
 
     def render_item_list(self) -> None:
         """Renders all items in the item list, as per filters"""
