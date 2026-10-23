@@ -2,6 +2,7 @@
 
 #Stardard Libraries
 import csv
+from datetime import datetime
 import uuid
 
 #Third-Party Libraries
@@ -11,6 +12,7 @@ import uuid
 #File Names
 item_csv: str = "local_data/items.csv"
 issues_csv: str = "local_data/issues.csv"
+log_csv: str = "local_data/log.csv"
 
 def add_uuids_to_items():
     """
@@ -27,6 +29,13 @@ def add_uuids_to_items():
 
     with open(item_csv, mode="w", newline="") as csv_file:
         csv.writer(csv_file).writerows(read_file) #Writes file w/changes.
+
+def add_to_log(uuid:str, change:str):
+    """Adds specified information to the log file"""
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    with open(log_csv, mode="a", newline="") as csv_file:
+        writer = csv.writer(csv_file)
+        writer.writerow([uuid, timestamp, change])
 
 def get_items(available_filter: bool|None = None, issues_filter: bool|None = None,
               search: str|None = None) -> list[str]:
@@ -101,16 +110,21 @@ def modify_item_information(uuid:str, modifications: dict[str, str]):
             if row[0] == uuid:
                 try:
                     row[1] = modifications["availability"]
+                    if modifications["availability"] == "Available":
+                        add_to_log(uuid, f"Item Checked In")
+                    if modifications["availability"] == "Unavailable":
+                        add_to_log(uuid, f"Item Checked Out by: {modifications["lastusedby"]}")
                 except KeyError:
                     pass
-
                 try:
                     row[2] = modifications["name"]
                 except KeyError:
                     pass
 
                 try:
-                    row[3] = modifications["description"]
+                    if row[3] != modifications["description"]:
+                        add_to_log(uuid, f"Updated Description To: {modifications["description"]}")
+                        row[3] = modifications["description"]
                 except KeyError:
                     pass
 
@@ -123,12 +137,14 @@ def modify_item_information(uuid:str, modifications: dict[str, str]):
         csv.writer(csv_file).writerows(read_file)
 
 def add_new_item(item_name:str) -> None:
+    new_uuid: str = str(uuid.uuid4())
+    add_to_log(new_uuid, f"Added Item: {item_name}")
     with open(item_csv, mode="a", newline="") as csv_file:
         writer = csv.writer(csv_file)
-        writer.writerow(["", "Available", item_name, "", "Never Checked Out"])
-    add_uuids_to_items()
+        writer.writerow([new_uuid, "Available", item_name, "", "Never Checked Out"])
 
 def delete_item(uuid:str) -> None:
+    add_to_log(uuid, "Deleted Item")
     with open(item_csv, mode="r", newline="") as csv_file:
         read_file = list(csv.reader(csv_file))
         new_file = []
@@ -141,11 +157,13 @@ def delete_item(uuid:str) -> None:
         csv.writer(csv_file).writerows(new_file)
 
 def add_new_issue(uuid:str, issue:str) -> None:
+    add_to_log(uuid, f"Added issue: {issue}")
     with open(issues_csv, mode="a", newline="") as csv_file:
         writer = csv.writer(csv_file)
         writer.writerow([uuid, issue])
 
 def remove_issue(uuid:str, issue:str) -> None:
+    add_to_log(uuid, f"Removed issue: {issue}")
     with open(issues_csv, mode="r", newline="") as csv_file:
         read_file = list(csv.reader(csv_file))
         new_file = []
