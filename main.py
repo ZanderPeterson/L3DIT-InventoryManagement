@@ -139,7 +139,7 @@ class MainWidget(QWidget):
 
     def render_item_list(self) -> None:
         """Renders all items in the item list, as per filters"""
-        self.display_info()
+        self.display_info() #Updates the InfoPanel
 
         #This clears whatever was previously rendered
         for item in self.rendered_items.values():

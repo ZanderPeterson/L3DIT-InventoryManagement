@@ -63,7 +63,8 @@ def generate_log_file(uuid:str, directory:str) -> None:
         log_file.write(f"This file was generated on: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}\n\n")
         log_file.writelines(info_to_write)
 
-def get_items(available_filter: bool|None = None, issues_filter: bool|None = None,
+def get_items(available_filter: bool|None = None,
+              issues_filter: bool|None = None,
               search: str|None = None) -> list[str]:
     """
     A function that returns the UUIDs of all the items that meet the filters,
