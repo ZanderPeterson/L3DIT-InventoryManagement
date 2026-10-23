@@ -6,7 +6,7 @@ import sys #Required for opening a window
 #Third-Party Libraries
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (QApplication, QLabel, QLineEdit, QPushButton,
-                               QHBoxLayout, QVBoxLayout, QWidget, QSizePolicy) #The library utilised for the GUI
+                               QHBoxLayout, QVBoxLayout, QWidget, QSizePolicy, QPlainTextEdit)
 from PySide6.QtCore import QTimer
 
 #Local Libraries
@@ -118,8 +118,9 @@ class MainWidget(QWidget):
         self.infopanelwidget.setLayout(self.infopanellayout)
         self.info_panel_info: dict[str, dict[QWidget]] = {}
         self.info_panel_issues: list[dict[QWidget]] = []
+        self.info_panel_description: str = ""
         self.infopanellayout.addStretch()
-        self.currently_viewed_uuid = 0
+        self.currently_viewed_uuid: str | None = None
         left_side.addWidget(self.infopanelwidget)
 
         #Adds both of the sides to the overall layout
@@ -249,12 +250,16 @@ class MainWidget(QWidget):
         self.display_info(uuid)
 
     def display_info(self, uuid:str|None = None):
+        if not self.currently_viewed_uuid is None:
+            self.update_item_description(self.currently_viewed_uuid, True)
+
         if uuid is None:
             uuid = self.currently_viewed_uuid
         else:
+
             self.currently_viewed_uuid = uuid
 
-        if uuid == 0:
+        if uuid is None:
             return #If no item has been selected for display
 
         item_info: dict = data_utils.get_item_information(uuid)
@@ -276,9 +281,12 @@ class MainWidget(QWidget):
         self.info_panel_info["name"].setStyleSheet(qss.no_qss)
         self.infopanellayout.insertWidget(0, self.info_panel_info["name"])
 
-        self.info_panel_info["description"] = QLabel(f"{item_info["description"]}\n\n")
+        self.info_panel_info["description"] = QPlainTextEdit()
         self.info_panel_info["description"].setStyleSheet(qss.no_qss)
-        self.info_panel_info["description"].setWordWrap(True)
+        self.info_panel_info["description"].setPlaceholderText("Add a description...")
+        self.info_panel_info["description"].setPlainText(item_info["description"])
+        self.info_panel_info["description"].textChanged.connect(lambda: self.update_item_description(uuid, False))
+        self.update_item_description(uuid, False)
         self.infopanellayout.insertWidget(1, self.info_panel_info["description"])
 
         self.info_panel_info["issues"] = QWidget()
@@ -346,6 +354,12 @@ class MainWidget(QWidget):
         issue: str = self.info_panel_info["AddIssue"].text()
         data_utils.add_new_issue(uuid, issue)
         self.render_item_list()
+
+    def update_item_description(self, uuid:str, commit:bool) -> None:
+        if not commit:
+            self.info_panel_description = self.info_panel_info["description"].toPlainText()
+            return
+        data_utils.modify_item_information(uuid, {"description": self.info_panel_description})
 
     def delete_issue(self, uuid:str, issue:str):
         data_utils.remove_issue(uuid, issue)

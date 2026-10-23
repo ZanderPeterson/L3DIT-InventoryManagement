@@ -125,7 +125,7 @@ def modify_item_information(uuid:str, modifications: dict[str, str]):
 def add_new_item(item_name:str) -> None:
     with open(item_csv, mode="a", newline="") as csv_file:
         writer = csv.writer(csv_file)
-        writer.writerow(["", "Available", item_name, "No Description", "Never Checked Out"])
+        writer.writerow(["", "Available", item_name, "", "Never Checked Out"])
     add_uuids_to_items()
 
 def add_new_issue(uuid:str, issue:str) -> None:
