@@ -128,6 +128,18 @@ def add_new_item(item_name:str) -> None:
         writer.writerow(["", "Available", item_name, "", "Never Checked Out"])
     add_uuids_to_items()
 
+def delete_item(uuid:str) -> None:
+    with open(item_csv, mode="r", newline="") as csv_file:
+        read_file = list(csv.reader(csv_file))
+        new_file = []
+        for row in read_file:
+            if row[0] == uuid:
+                break
+            else:
+                new_file.append(row)
+    with open(item_csv, mode="w", newline="") as csv_file:
+        csv.writer(csv_file).writerows(new_file)
+
 def add_new_issue(uuid:str, issue:str) -> None:
     with open(issues_csv, mode="a", newline="") as csv_file:
         writer = csv.writer(csv_file)

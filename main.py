@@ -259,9 +259,6 @@ class MainWidget(QWidget):
 
             self.currently_viewed_uuid = uuid
 
-        if uuid is None:
-            return #If no item has been selected for display
-
         item_info: dict = data_utils.get_item_information(uuid)
         for issue in self.info_panel_issues:
             try:
@@ -277,6 +274,10 @@ class MainWidget(QWidget):
                 continue
             except AttributeError:
                 continue
+
+        if uuid is None:
+            return #If no item has been selected for display
+
         self.info_panel_info["name"] = QLabel(f"<h1>{item_info["name"]}</h1>")
         self.info_panel_info["name"].setStyleSheet(qss.no_qss)
         self.infopanellayout.insertWidget(0, self.info_panel_info["name"])
@@ -345,14 +346,14 @@ class MainWidget(QWidget):
         self.info_panel_info["CheckWidget"].setLayout(self.info_panel_info["CheckWidgetLayout"])
         self.infopanellayout.addWidget(self.info_panel_info["CheckWidget"])
 
+        self.info_panel_info["DeleteItem"] = QPushButton("Delete Item")
+        self.info_panel_info["DeleteItem"].setStyleSheet(qss.inventory_unavailable_button_style)
+        self.info_panel_info["DeleteItem"].clicked.connect(lambda _: self.delete_item(uuid))
+        self.infopanellayout.addWidget(self.info_panel_info["DeleteItem"])
+
     def add_new_item(self):
         name: str = self.add_item.text()
         data_utils.add_new_item(name)
-        self.render_item_list()
-
-    def add_new_issue(self, uuid:str):
-        issue: str = self.info_panel_info["AddIssue"].text()
-        data_utils.add_new_issue(uuid, issue)
         self.render_item_list()
 
     def update_item_description(self, uuid:str, commit:bool) -> None:
@@ -360,6 +361,16 @@ class MainWidget(QWidget):
             self.info_panel_description = self.info_panel_info["description"].toPlainText()
             return
         data_utils.modify_item_information(uuid, {"description": self.info_panel_description})
+
+    def delete_item(self, uuid:str) -> None:
+        data_utils.delete_item(uuid)
+        self.currently_viewed_uuid = None
+        self.render_item_list()
+
+    def add_new_issue(self, uuid:str):
+        issue: str = self.info_panel_info["AddIssue"].text()
+        data_utils.add_new_issue(uuid, issue)
+        self.render_item_list()
 
     def delete_issue(self, uuid:str, issue:str):
         data_utils.remove_issue(uuid, issue)
